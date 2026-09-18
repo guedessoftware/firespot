@@ -56,6 +56,8 @@ try:
         except ProcessLookupError: pass
         time.sleep(1)
     assert_ok(Path('/tmp/hotspot-ip').read_text().strip().startswith(f'10.203.{VLAN}.'),'DHCP da VLAN '+str(VLAN))
+    route=json.loads(subprocess.check_output(['ip','-j','route','get','10.203.40.10']))
+    assert_ok(route[0]['dev']=='hotspot','Destino WAN usa o gateway do Hotspot')
     interfaces=json.loads(subprocess.check_output(['ip','-j','-4','addr']))
     management=next(item['ifname'] for item in interfaces if any(a.get('local','').startswith('10.203.40.') for a in item['addr_info']))
     bypass=subprocess.run(['curl','--silent','--max-time','3','--interface',management,WAN],capture_output=True)
