@@ -11,6 +11,7 @@ import socket
 import subprocess
 import threading
 import time
+import uuid
 from pexpect.fdpexpect import fdspawn
 import pexpect
 from router import command
@@ -116,21 +117,36 @@ def console_login():
     os.chmod(DATA/'console.log',0o600)
     child.logfile_read=console_log
     child.sendline('')
-    patterns=[r'(?i)login\s*:',r'(?i)password\s*[:>]',r'(?i)new password\s*[:>]',r'(?i)(?:repeat|retype)(?: new)? password\s*[:>]',r'(?i)software license.*\[Y/n\]:',r'\] >',pexpect.EOF,pexpect.TIMEOUT]
+    patterns=[r'(?i)login\s*:',r'(?i)password\s*[:>]',r'(?i)new password\s*[:>]',r'(?i)(?:repeat|retype)(?: new)? password\s*[:>]',r'\[Y/n\]:',r'\] >',pexpect.EOF,pexpect.TIMEOUT]
     fresh=NEW_DISK
     login_count=0
+    new_password_sent=repeat_password_sent=False
     deadline=time.monotonic()+360
     while time.monotonic()<deadline:
         # New-password prompts precede the generic password prompt.
-        index=child.expect([patterns[0],patterns[2],patterns[3],patterns[1],patterns[4],patterns[5],patterns[6],patterns[7]],timeout=3)
+        index=child.expect([patterns[0],patterns[2],patterns[3],patterns[1],patterns[4],patterns[5],patterns[6],patterns[7],r'-- press Enter \(q to abort\)'],timeout=3)
         if index==0: child.sendline('admin+ct'); login_count+=1
-        elif index in [1,2]: child.sendline(PASSWORD)
+        elif index==1 and not new_password_sent:
+            child.sendline(PASSWORD); new_password_sent=True
+        elif index==2 and not repeat_password_sent:
+            child.sendline(PASSWORD); repeat_password_sent=True
         elif index==3: child.sendline('' if fresh or (login_count==2 and not (DATA/'configured').exists()) else PASSWORD)
         elif index==4: child.sendline('n')
         elif index==5: return child,serial
         elif index==7: child.sendline('')  # Console activation may become available only after boot.
-        else: raise RuntimeError('Console do CHR desconectado.')
+        elif index==8: child.send('q')
+        elif index==6: raise RuntimeError('Console do CHR desconectado.')
     raise RuntimeError('Login do console do CHR não concluiu.')
+
+def console_command(child,text,timeout=60):
+    # RouterOS redraws prompts while echoing long commands. A separate output
+    # marker confirms execution before accepting the next prompt.
+    marker='FIRESPOT-LAB-SYNC-'+uuid.uuid4().hex
+    child.sendline(text+'; :put "'+marker+'"')
+    child.expect(r'(?m)^'+marker+r'\r?$',timeout=timeout)
+    output=child.before
+    child.expect(r'\] >',timeout=timeout)
+    return output
 
 bridge('10.203.30.2','br-service','tap-service','10.203.30.254/24')
 bridge('10.203.254.2','br-trunk','tap-trunk')
@@ -162,17 +178,15 @@ try:
     if not (DATA/'configured').exists():
         server=HTTPServer(('127.0.0.1',8765),Handler)
         threading.Thread(target=server.serve_forever,daemon=True).start()
-        child.sendline(':if ([:len [/ip dhcp-client find interface=ether1]]=0) do={/ip dhcp-client add interface=ether1 disabled=no}')
-        child.expect(r'\] >'); time.sleep(4)
-        child.sendline('/tool fetch url="http://10.0.2.2:8765/bootstrap.rsc" dst-path=bootstrap.rsc')
-        child.expect(r'\] >',timeout=60)
-        child.sendline('/import file-name=bootstrap.rsc')
-        child.expect(r'\] >',timeout=120)
-        if 'FIRESPOT-LAB-CONFIGURED' not in child.before:
-            error=child.before.replace(PASSWORD,'[redacted]').replace(SECRET,'[redacted]')
+        console_command(child,':if ([:len [/ip dhcp-client find interface=ether1]]=0) do={/ip dhcp-client add interface=ether1 disabled=no}')
+        time.sleep(4)
+        console_command(child,'/tool fetch url="http://10.0.2.2:8765/bootstrap.rsc" dst-path=bootstrap.rsc')
+        output=console_command(child,'/import file-name=bootstrap.rsc',timeout=180)
+        if 'FIRESPOT-LAB-CONFIGURED' not in output:
+            error=output.replace(PASSWORD,'[redacted]').replace(SECRET,'[redacted]')
             lines=[line for line in error.splitlines() if any(word in line.lower() for word in ['failure','expected','syntax','error','not allowed'])]
             raise RuntimeError('Importação rejeitada: '+' '.join(lines)[-1500:])
-        child.sendline('/file remove [find name=bootstrap.rsc]'); child.expect(r'\] >')
+        console_command(child,'/file remove [find name=bootstrap.rsc]')
         server.shutdown(); (DATA/'configured').write_text('1\n')
     child.close(); serial.close()
     for _ in range(30):

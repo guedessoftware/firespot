@@ -24,8 +24,6 @@ elif [ "${1:-}" = preset ]; then
     shift
     set -- exec -T web php dev/lab/preset.php "${1:-hybrid}"
 elif [ "${1:-}" = test ]; then
-    shift
-    docker compose --env-file "$configuration" -p firespot-lab -f compose.local.yaml -f compose.lab.yaml exec -T web php dev/radius/smoke.php
-    set -- exec -T client-a python3 /opt/lab/smoke.py
+    exec python3 dev/lab/validate.py
 fi
 exec docker compose --env-file "$configuration" -p firespot-lab -f compose.local.yaml -f compose.lab.yaml "$@"
