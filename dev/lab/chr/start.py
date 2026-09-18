@@ -116,7 +116,7 @@ def console_login():
     os.chmod(DATA/'console.log',0o600)
     child.logfile_read=console_log
     child.sendline('')
-    patterns=[r'(?i)login:',r'(?i)password:',r'(?i)new password:',r'(?i)repeat new password:',r'(?i)software license.*\[Y/n\]:',r'\] >',pexpect.EOF,pexpect.TIMEOUT]
+    patterns=[r'(?i)login\s*:',r'(?i)password\s*[:>]',r'(?i)new password\s*[:>]',r'(?i)(?:repeat|retype)(?: new)? password\s*[:>]',r'(?i)software license.*\[Y/n\]:',r'\] >',pexpect.EOF,pexpect.TIMEOUT]
     fresh=NEW_DISK
     login_count=0
     deadline=time.monotonic()+360
