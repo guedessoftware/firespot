@@ -29,6 +29,8 @@ def configure(directory, secrets_directory, source_directory):
     (directory / 'mods-available/sql').chmod(0o640)
     shutil.chown(directory / 'mods-available/sql', group='freerad')
     counter = (directory / 'mods-available/sqlcounter').read_text()
+    # Module include order varies between filesystems. This image always uses MySQL.
+    counter = counter.replace('dialect = ${modules.sql.dialect}', 'dialect = mysql')
     counter = re.sub(r'(check_name = Max-All-Session\n)(?:\s*reply_name = Session-Timeout\n)?', r'\1\treply_name = Session-Timeout\n', counter)
     (directory / 'mods-available/sqlcounter').write_text(counter)
     modules = directory / 'mods-enabled'
