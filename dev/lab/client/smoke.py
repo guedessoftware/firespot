@@ -8,6 +8,7 @@ import signal
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 if os.getuid()==0:
@@ -96,6 +97,10 @@ try:
         assert_ok(True,'Tráfego liberado pelo Hotspot')
 except Exception as error:
     detail=type(error).__name__+': '+str(error)
+    if session and os.environ.get('LAB_CI_DIAGNOSTIC')=='true':
+        try:
+            detail+=' | page='+urllib.parse.urlsplit(wd('GET','/url')).path+' | '+str(script('return document.body.innerText.slice(0,600);'))
+        except Exception:pass
     if driver_log.exists():detail+=' | '+driver_log.read_text(errors='replace')[-1600:]
     detail=re.sub(r'[a-f0-9]{8,}','[redacted]',detail)
     detail=re.sub(r'https?://[^\s\"\']+','[lab-url]',detail)

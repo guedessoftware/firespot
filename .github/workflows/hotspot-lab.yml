@@ -27,6 +27,7 @@ jobs:
         if: failure()
         run: |
           bash dev/lab.sh logs --tail 35 > "$RUNNER_TEMP/lab.log" 2>&1 || true
+          bash dev/lab.sh exec -T chr python3 /opt/lab/router.py '/ip hotspot print; /ip hotspot profile print; /system device-mode print; /ip hotspot host print; /ip firewall nat print stats' > "$RUNNER_TEMP/lab-nas.log" 2>&1 || true
           python3 - <<'PY'
           import os
           from pathlib import Path
@@ -39,6 +40,10 @@ jobs:
           print(text)
           for line in text.splitlines():
               if any(word in line for word in ['Error','failed','Fatal','Uncaught','rejected','RADIUS configuration','CHR console diagnostic','Login:']):print('::error::'+line.replace('%','%25').replace('\r','%0D'))
+          nas=Path(os.environ['RUNNER_TEMP']+'/lab-nas.log').read_text()
+          import re
+          nas=re.sub(r'[a-f0-9]{8,}','[redacted]',nas)
+          print('::error::Lab NAS: '+nas[-6000:].replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
           PY
       - name: Encerrar laboratório
         if: always()
