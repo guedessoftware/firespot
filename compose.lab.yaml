@@ -90,6 +90,7 @@ services:
         ipv4_address: 10.203.40.11
       trunk:
         ipv4_address: 10.203.254.10
+        mac_address: "02:00:00:00:10:01"
     depends_on:
       chr:
         condition: service_healthy
@@ -110,6 +111,7 @@ services:
         ipv4_address: 10.203.40.12
       trunk:
         ipv4_address: 10.203.254.20
+        mac_address: "02:00:00:00:20:01"
 
 networks:
   browser:

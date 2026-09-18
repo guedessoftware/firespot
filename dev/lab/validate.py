@@ -18,6 +18,7 @@ def check(ok,label):
 
 try:
     execute('exec','-T','web','php','dev/radius/smoke.php')
+    execute('exec','-T','web','php','tests/guest_payment_radius_test.php')
     for client in ['client-a','client-b']: execute('exec','-T',client,'python3','/opt/lab/smoke.py','portal')
     execute('exec','-T','client-a','python3','/opt/lab/smoke.py','paid')
     deadline=time.monotonic()+35

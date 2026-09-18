@@ -16,8 +16,11 @@ jobs:
         run: |
           sudo modprobe tun
           python3 dev/lab/setup.py
+          python3 dev/lab/preflight.py
+      - name: Construir imagens do laboratório
+        run: python3 dev/lab/ci_start.py build
       - name: Subir RADIUS, CHR e Firefox nas VLANs
-        run: bash dev/lab.sh start
+        run: python3 dev/lab/ci_start.py up
       - name: Testar portal, Pix simulado, CoA e cortesia
         run: python3 dev/lab/validate.py
       - name: Diagnóstico sem segredos
