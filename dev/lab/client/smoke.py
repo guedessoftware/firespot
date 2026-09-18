@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import signal
 import sys
@@ -31,13 +32,17 @@ def wait(predicate,label,seconds=45):
     raise RuntimeError('Timeout: '+label)
 
 driver=None; session=None
+driver_log=Path('/tmp/geckodriver.log')
 def request(method,path,body=None):
     data=json.dumps(body).encode() if body is not None else None
     req=urllib.request.Request('http://127.0.0.1:4444'+path,data=data,method=method,headers={'Content-Type':'application/json'})
     try:
         with urllib.request.urlopen(req,timeout=45) as response: result=json.load(response)
     except urllib.error.HTTPError as error:
-        raise RuntimeError('WebDriver recusou a operação HTTP '+str(error.code)) from None
+        try: detail=json.load(error).get('value',{})
+        except (ValueError,TypeError): detail={}
+        message=str(detail.get('error',''))+': '+str(detail.get('message',''))
+        raise RuntimeError('WebDriver HTTP '+str(error.code)+' '+message[:400]) from None
     if isinstance(result.get('value'),dict) and 'error' in result['value']:raise RuntimeError('WebDriver: '+result['value']['error'])
     return result.get('value')
 
@@ -62,7 +67,8 @@ try:
     management=next(item['ifname'] for item in interfaces if any(a.get('local','').startswith('10.203.40.') for a in item['addr_info']))
     bypass=subprocess.run(['curl','--silent','--max-time','3','--interface',management,WAN],capture_output=True)
     assert_ok(bypass.returncode!=0,'Interface da tela não contorna o Hotspot')
-    driver=subprocess.Popen(['geckodriver','--host','127.0.0.1','--port','4444'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    log=driver_log.open('w');driver_log.chmod(0o600)
+    driver=subprocess.Popen(['geckodriver','--host','127.0.0.1','--port','4444'],stdout=log,stderr=log)
     wait(lambda:request('GET','/status'),'WebDriver')
     value=request('POST','/session',{'capabilities':{'alwaysMatch':{'browserName':'firefox','moz:firefoxOptions':{'binary':'/usr/bin/firefox','args':['-headless']}}}})
     session=value['sessionId']
@@ -86,8 +92,15 @@ try:
         assert_ok(True,'Cortesia '+MODE+' via Firefox e RADIUS')
     elif MODE!='portal':raise RuntimeError('Modo de teste desconhecido.')
     if MODE!='portal':
-        reply=subprocess.run(['curl','--silent','--max-time','10',WAN],capture_output=True)
-        assert_ok(reply.returncode==0 and b'FIRESPOT-LAB-INTERNET-OK' in reply.stdout,'Tráfego liberado pelo Hotspot')
+        wait(lambda:b'FIRESPOT-LAB-INTERNET-OK' in subprocess.run(['curl','--silent','--max-time','3',WAN],capture_output=True).stdout,'Tráfego liberado pelo Hotspot',seconds=60)
+        assert_ok(True,'Tráfego liberado pelo Hotspot')
+except Exception as error:
+    detail=type(error).__name__+': '+str(error)
+    if driver_log.exists():detail+=' | '+driver_log.read_text(errors='replace')[-1600:]
+    detail=re.sub(r'[a-f0-9]{8,}','[redacted]',detail)
+    detail=re.sub(r'https?://[^\s\"\']+','[lab-url]',detail)
+    print('::error::Linux '+CODE+' '+MODE+': '+detail.replace('%','%25').replace('\r','%0D').replace('\n','%0A'),flush=True)
+    raise SystemExit(2)
 finally:
     if session:
         try:wd('DELETE','',None)

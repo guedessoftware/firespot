@@ -8,7 +8,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 def execute(*args,capture=False):
     result=subprocess.run(['bash','dev/lab.sh',*args],cwd=ROOT,capture_output=capture,text=True)
-    if result.returncode:raise RuntimeError('Falhou: '+' '.join(args[:5]))
+    if result.returncode:raise RuntimeError('Falhou: '+' '.join(args[:6]))
     return result.stdout if capture else ''
 
 def state():return json.loads(execute('exec','-T','web','php','dev/lab/state.php',capture=True))
