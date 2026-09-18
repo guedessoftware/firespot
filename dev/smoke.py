@@ -4,7 +4,7 @@
 from html.parser import HTMLParser
 from http.cookiejar import CookieJar
 from pathlib import Path
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import HTTPCookieProcessor, build_opener
 
@@ -47,4 +47,13 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import os
+    try:
+        main()
+    except (URLError, OSError, SystemExit) as error:
+        message = str(error)
+        if isinstance(error, HTTPError):
+            message += ' — ' + error.url
+        if os.environ.get('GITHUB_ACTIONS') == 'true':
+            print('::error::' + message.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+        raise

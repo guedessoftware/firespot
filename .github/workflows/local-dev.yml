@@ -27,7 +27,15 @@ jobs:
         run: python3 dev/smoke.py
       - name: Diagnóstico em caso de falha
         if: failure()
-        run: bash dev/local.sh logs --tail 60
+        run: |
+          bash dev/local.sh logs --tail 60 | tee "$RUNNER_TEMP/firespot-local.log"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          for line in (Path(os.environ['RUNNER_TEMP']) / 'firespot-local.log').read_text().splitlines():
+              if 'Fatal error' in line or 'Uncaught' in line:
+                  print('::error::' + line.replace('%', '%25').replace('\r', '%0D'))
+          PY
       - name: Encerrar ambiente de teste
         if: always()
         run: bash dev/local.sh down -v
