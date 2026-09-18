@@ -6,9 +6,9 @@ import time
 
 ROOT=Path(__file__).resolve().parents[2]
 
-def execute(*args,capture=False):
+def execute(*args,capture=False,allow_failure=False):
     result=subprocess.run(['bash','dev/lab.sh',*args],cwd=ROOT,capture_output=capture,text=True)
-    if result.returncode:raise RuntimeError('Falhou: '+' '.join(args[:6]))
+    if result.returncode and not allow_failure:raise RuntimeError('Falhou: '+' '.join(args[:6]))
     return result.stdout if capture else ''
 
 def state():return json.loads(execute('exec','-T','web','php','dev/lab/state.php',capture=True))
@@ -51,9 +51,10 @@ try:
         check(int(router(':put [:len [/ip hotspot cookie find mac-address="02:00:00:00:10:01"]]'))>0,'Ausência curta preserva cookie e encerra accounting')
     finally:
         execute('exec','-T','client-a','ip','link','set','hotspot','up')
+        execute('exec','-T','client-a','udhcpc','-i','hotspot','-s','/opt/lab/dhcp.sh','-t','20','-T','3','-n','-q')
     response=''
     for _ in range(15):
-        response=execute('exec','-T','client-a','curl','--silent','--max-time','10','http://10.203.40.10/',capture=True)
+        response=execute('exec','-T','client-a','curl','--silent','--max-time','3','http://10.203.40.10/',capture=True,allow_failure=True)
         if 'FIRESPOT-LAB-INTERNET-OK' in response:break
         time.sleep(1)
     check('FIRESPOT-LAB-INTERNET-OK' in response,'MAC cookie reconecta o acesso pago')
