@@ -3,6 +3,12 @@ declare(strict_types=1);
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 require_once __DIR__ . '/../../app/db.php';
 if (env('APP_ENV') !== 'local' || env('DB_DATABASE') !== 'firespot_local') exit(64);
+set_exception_handler(static function(Throwable $error): void {
+    $message=$error->getMessage();
+    $secret=(string)env('COURTESY_RADIUS_PROBE_SECRET','');
+    if($secret!=='') $message=str_replace($secret,'[redacted]',$message);
+    fwrite(STDERR,'::error::RADIUS smoke: '.str_replace(["\r","\n"],[' ',' '],$message)."\n"); exit(2);
+});
 $pdo = db();
 $username = 'lab-probe-' . bin2hex(random_bytes(8));
 $password = bin2hex(random_bytes(16));
@@ -29,7 +35,7 @@ $assert = static function(bool $ok, string $label): void {
 try {
     $insert = $pdo->prepare('INSERT INTO radcheck (username,attribute,op,value) VALUES (?,?,?,?)');
     foreach ([['Cleartext-Password',':=',$password],['Max-All-Session',':=','300'],['Calling-Station-Id','==','02:00:00:00:00:01']] as $row) $insert->execute(array_merge([$username],$row));
-    $st = $pdo->prepare("INSERT INTO radacct (acctsessionid,acctuniqueid,username,nasipaddress,acctsessiontime,acctstarttime,acctstoptime) VALUES (?,?,?,'192.0.2.254',120,NOW()-INTERVAL 1 HOUR,NOW()-INTERVAL 58 MINUTE)");
+    $st = $pdo->prepare("INSERT INTO radacct (acctsessionid,acctuniqueid,username,nasipaddress,acctsessiontime,acctstarttime,acctstoptime,calledstationid,acctterminatecause) VALUES (?,?,?,'192.0.2.254',120,NOW()-INTERVAL 1 HOUR,NOW()-INTERVAL 58 MINUTE,'lab','User-Request')");
     $st->execute([$username . '-old',md5($username),$username]);
     $base = "User-Name = \"{$username}\"\nNAS-IP-Address = 192.0.2.254\nCalling-Station-Id = \"02:00:00:00:00:01\"\n";
     $reply = $exchange($base . "User-Password = \"{$password}\"\n");
