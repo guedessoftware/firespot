@@ -46,6 +46,11 @@ def login_page(vlan):
         '<button>Entrar no FireSpot de teste</button></form><script>document.redirect.submit()</script></html>').encode()
 
 def other_page(name):
+    if name in ['rlogin','redirect','rstatus']:
+        return (b'$(if http-status == 302)Hotspot redirect$(endif)\n'
+            b'$(if http-header == "Location")$(link-redirect)$(endif)\n'
+            b'<html><meta http-equiv="refresh" content="0;url=$(link-redirect)">'
+            b'<a href="$(link-redirect)">Abrir portal</a></html>')
     if name=='alogin': return b'<html><meta http-equiv="refresh" content="0;url=$(link-redirect)"><a href="$(link-redirect)">Continuar</a></html>'
     if name=='status': return b'<html><meta charset="utf-8"><h1>FireSpot LAB</h1><p>Usuario: $(username)</p><p>Tempo: $(uptime) / $(session-time-left)</p><a href="http://10.203.40.10/">Internet de teste</a><p><a href="$(link-logout)">Desconectar</a></p></html>'
     return b'<html><meta charset="utf-8"><p>$(error)</p><a href="$(link-login)">Voltar ao portal</a></html>'
@@ -81,7 +86,7 @@ def config():
             f'/ip hotspot profile add name=lab-{vlan} hotspot-address={gateway} dns-name="" html-directory=hotspot/lab-{vlan} login-by=http-chap,cookie,mac-cookie http-cookie-lifetime=20m use-radius=yes radius-accounting=yes radius-interim-update=15s',
             f'/ip hotspot add name={code} interface=lab-{vlan} address-pool=lab-{vlan} profile=lab-{vlan} disabled=no',
         ]
-        for page in ['alogin','status','logout','error','rlogin']:
+        for page in ['alogin','status','logout','error','rlogin','redirect','rstatus']:
             lines.append(f'/tool fetch url="http://10.0.2.2:8765/{page}.html" dst-path=hotspot/lab-{vlan}/{page}.html')
     # Hotspot is enforced before normal forwarding; only the public portal is in the garden.
     lines += [
@@ -101,7 +106,7 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self,*args): pass
     def do_GET(self):
         files={'/bootstrap.rsc':config(),'/login-10.html':login_page(10),'/login-20.html':login_page(20)}
-        files.update({'/'+name+'.html':other_page(name) for name in ['alogin','status','logout','error','rlogin']})
+        files.update({'/'+name+'.html':other_page(name) for name in ['alogin','status','logout','error','rlogin','redirect','rstatus']})
         body=files.get(self.path)
         if body is None: self.send_error(404); return
         self.send_response(200); self.send_header('Content-Length',str(len(body))); self.end_headers(); self.wfile.write(body)
@@ -142,7 +147,7 @@ def console_command(child,text,timeout=60):
     # marker confirms execution before accepting the next prompt.
     marker='FIRESPOT-LAB-SYNC-'+uuid.uuid4().hex
     child.sendline(text+'; :put "'+marker+'"')
-    index=child.expect([r'(?m)^[\r \t]*'+marker+r'[\r \t]*$',r'(?i)(?:script error:|failure:|syntax error|expected end of command)[^\r\n]*'],timeout=timeout)
+    index=child.expect([r'(?m)^[\r \t]*'+marker+r'[\r \t]*$',r'(?i)(?:script error:|failure:|syntax error|expected end of command|input does not match|bad command name)[^\r\n]*'],timeout=timeout)
     if index==1:
         detail=child.after
         child.expect(r'\] >',timeout=15)
@@ -150,6 +155,14 @@ def console_command(child,text,timeout=60):
     output=child.before
     child.expect(r'\] >',timeout=timeout)
     return output
+
+def wait_interfaces(child):
+    deadline=time.monotonic()+90
+    while time.monotonic()<deadline:
+        output=console_command(child,':put ([:len [/interface find name="ether1"]]+[:len [/interface find name="ether2"]]+[:len [/interface find name="ether3"]])')
+        if re.search(r'(?m)^[\r \t]*3[\r \t]*$',output):return
+        time.sleep(2)
+    raise RuntimeError('As três interfaces Ethernet do CHR não ficaram disponíveis.')
 
 def redact_console(text):
     text=re.sub(r'\x1b\[[0-9;?]*[A-Za-z]|\x1b.', '', text)
@@ -187,6 +200,7 @@ try:
     child,serial=console_login()
     console_command(child,f'/user set [find name="admin"] password="{PASSWORD}"')
     if not (DATA/'configured').exists():
+        wait_interfaces(child)
         server=HTTPServer(('127.0.0.1',8765),Handler)
         threading.Thread(target=server.serve_forever,daemon=True).start()
         console_command(child,':if ([:len [/ip dhcp-client find interface=ether1]]=0) do={/ip dhcp-client add interface=ether1 disabled=no}')
