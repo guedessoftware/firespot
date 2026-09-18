@@ -27,7 +27,7 @@ jobs:
         if: failure()
         run: |
           bash dev/lab.sh logs --tail 35 > "$RUNNER_TEMP/lab.log" 2>&1 || true
-          bash dev/lab.sh exec -T chr python3 /opt/lab/router.py '/ip hotspot print; /ip hotspot profile print; /system device-mode print; /ip hotspot host print; /ip firewall nat print stats' > "$RUNNER_TEMP/lab-nas.log" 2>&1 || true
+          bash dev/lab.sh exec -T chr python3 /opt/lab/router.py '/ip hotspot print; /ip hotspot profile print; /system device-mode print; /ip hotspot host print; /ip firewall nat print stats; /log print where topics~"hotspot"' > "$RUNNER_TEMP/lab-nas.log" 2>&1 || true
           for client in client-a client-b; do
             bash dev/lab.sh exec -T "$client" sh -c 'ip -4 route; ip -4 addr show dev hotspot' > "$RUNNER_TEMP/lab-$client.log" 2>&1 || true
           done

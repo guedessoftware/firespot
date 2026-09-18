@@ -51,7 +51,10 @@ try:
         check(int(router(':put [:len [/ip hotspot cookie find mac-address="02:00:00:00:10:01"]]'))>0,'Ausência curta preserva cookie e encerra accounting')
     finally:
         execute('exec','-T','client-a','ip','link','set','hotspot','up')
-        execute('exec','-T','client-a','udhcpc','-i','hotspot','-s','/opt/lab/dhcp.sh','-t','20','-T','3','-n','-q')
+        # The valid lease/address survives link down. Restore the routes without
+        # a DHCP address flush racing the RouterOS MAC-cookie login.
+        execute('exec','-T','client-a','ip','route','replace','default','via','10.203.10.1','dev','hotspot')
+        execute('exec','-T','client-a','ip','route','replace','10.203.40.10/32','via','10.203.10.1','dev','hotspot')
     response=''
     for _ in range(15):
         response=execute('exec','-T','client-a','curl','--silent','--max-time','3','http://10.203.40.10/',capture=True,allow_failure=True)
