@@ -58,7 +58,7 @@ Todas as portas publicadas escutam somente em `127.0.0.1`. Leia suas senhas loca
 
 ## RADIUS e CoA
 
-A instalação gera contas SQL separadas para a aplicação e o RADIUS. O FreeRADIUS lê NAS e credenciais no banco e escreve accounting com permissões limitadas. O CHR envia pacotes com origem `10.203.30.2`; o destino RADIUS é `10.203.30.4`. O secret NAS é gerado em `dev/.local/chr-radius-secret`. Não use segredos da produção.
+A instalação gera contas SQL separadas para a aplicação e o RADIUS. O FreeRADIUS lê NAS e credenciais no banco e escreve accounting com permissões limitadas. O CHR envia pacotes com origem `10.203.30.2`; o destino RADIUS é `10.203.30.3`. No laboratório, PHP e FreeRADIUS compartilham o endereço de rede, de modo que o CoA enviado pela aplicação tem a origem reconhecida pelo RouterOS. Os processos e contas SQL continuam separados. O secret NAS é gerado em `dev/.local/chr-radius-secret`. Não use segredos da produção.
 
 O CHR recebe CoA em UDP **3799**, somente pela rede de serviços. O tempo provisório e o tempo pago são geridos pelas funções existentes da aplicação. A promoção do acesso passa pelo webhook e pelo receptor CoA real do RouterOS. O intervalo de accounting é 15 segundos.
 

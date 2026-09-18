@@ -17,7 +17,7 @@ $secret = tempnam(sys_get_temp_dir(), 'fs-radius-');
 chmod($secret, 0600);
 file_put_contents($secret, env('COURTESY_RADIUS_PROBE_SECRET') . "\n");
 $host = (string)env('COURTESY_RADIUS_PROBE_HOST');
-if ($host !== 'radius') throw new RuntimeException('Teste exclusivo do serviço radius local.');
+if ($host !== 'radius' && !($host === 'web' && env('FIRESPOT_LAB') === '1')) throw new RuntimeException('Teste exclusivo do serviço radius local.');
 $exchange = static function(string $body, string $kind = 'auth') use ($host, $secret): string {
     $port = $kind === 'acct' ? 1813 : 1812;
     $process = proc_open(['radclient','-x','-r','1','-t','3','-S',$secret,"{$host}:{$port}",$kind],

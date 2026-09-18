@@ -27,7 +27,7 @@ def setup():
         if (directory / name).is_symlink() or not (directory / name).is_file():
             raise ValueError('Segredo local inválido.')
     values = dict(line.split('=', 1) for line in (directory / 'firespot.env').read_text().splitlines() if '=' in line and not line.startswith('#'))
-    values.update(APP_URL='http://10.203.30.3', FIRESPOT_LAB='1',
+    values.update(APP_URL='http://10.203.30.3', FIRESPOT_LAB='1', COURTESY_RADIUS_PROBE_HOST='web',
         MERCADOPAGO_API_BASE='http://payments:8080', MERCADOPAGO_IDENTITY_API_BASE='http://payments:8080',
         MERCADOPAGO_ACCESS_TOKEN=(directory / 'lab-payment-token').read_text().strip(),
         MERCADOPAGO_PUBLIC_KEY='lab-public-key', MP_ENV='sandbox',

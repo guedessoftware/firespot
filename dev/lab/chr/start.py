@@ -62,7 +62,7 @@ def config():
         '/ip firewall address-list add list=lab-clients address=10.203.10.0/24',
         '/ip firewall address-list add list=lab-clients address=10.203.20.0/24',
         '/ip firewall nat add chain=srcnat out-interface=ether2 src-address-list=lab-clients action=masquerade comment=FireSpot-LAB-portal-return',
-        f'/radius add address=10.203.30.4 src-address=10.203.30.2 secret="{SECRET}" service=hotspot authentication-port=1812 accounting-port=1813 timeout=3s comment="FireSpot Base"',
+        f'/radius add address=10.203.30.3 src-address=10.203.30.2 secret="{SECRET}" service=hotspot authentication-port=1812 accounting-port=1813 timeout=3s comment="FireSpot Base"',
         '/radius incoming set accept=yes port=3799',
         '/ip service set [find name=ssh] address=10.203.30.0/24',
         '/ip service disable [find name!=ssh]',

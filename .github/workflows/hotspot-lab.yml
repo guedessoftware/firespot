@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Preparar laboratório fictício
-        run: python3 dev/lab/setup.py
+        run: |
+          sudo modprobe tun
+          python3 dev/lab/setup.py
       - name: Subir RADIUS, CHR e Firefox nas VLANs
         run: bash dev/lab.sh start
       - name: Testar portal, Pix simulado, CoA e cortesia

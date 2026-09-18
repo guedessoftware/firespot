@@ -5,6 +5,7 @@ cd "$project_directory"
 configuration="$project_directory/dev/.local/compose.env"
 if [ "${1:-}" = start ]; then
     python3 dev/lab/setup.py
+    python3 dev/lab/preflight.py
     shift
     set -- up -d --build --wait --wait-timeout 720 "$@"
 fi

@@ -27,6 +27,11 @@ jobs:
         run: python3 dev/smoke.py
       - name: Testar RADIUS e accounting reais
         run: bash dev/local.sh exec -T web php dev/radius/smoke.php
+      - name: Verificar segurança do login e RADIUS/CoA
+        run: |
+          bash dev/local.sh exec -T web php tests/partner_admin_security_test.php
+          bash dev/local.sh exec -T web php tests/payment_window_status_test.php
+          bash dev/local.sh exec -T web php tests/guest_payment_radius_test.php
       - name: Diagnóstico em caso de falha
         if: failure()
         run: |

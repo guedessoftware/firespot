@@ -22,9 +22,9 @@ services:
       local:
         ipv4_address: 10.203.30.6
   radius:
-    networks:
-      local:
-        ipv4_address: 10.203.30.4
+    # CoA originates in PHP. Share the web IP, as on an app + RADIUS production host.
+    networks: !reset []
+    network_mode: service:web
   payments:
     build:
       context: ./dev
