@@ -12,6 +12,7 @@ def execute(*args,capture=False):
     return result.stdout if capture else ''
 
 def state():return json.loads(execute('exec','-T','web','php','dev/lab/state.php',capture=True))
+def router(text):return execute('exec','-T','chr','python3','/opt/lab/router.py',text,capture=True).strip()
 def check(ok,label):
     if not ok:raise RuntimeError(label)
     print('PASS '+label,flush=True)
@@ -37,14 +38,26 @@ try:
     execute('approve',str(before['provider_payment_id']))
     duplicate=state()['orders'][0]
     check(duplicate['radius_paid_baseline_seconds']==after['radius_paid_baseline_seconds'],'Webhook repetido preserva baseline pago')
-    execute('exec','-T','chr','python3','/opt/lab/router.py','/ip hotspot active remove [find server="LAB-A"]')
-    time.sleep(2)
+    # An administrative reset erases the MAC cookie. Simulate a client leaving
+    # the network instead, with the lab's short keepalive and unchanged DHCP.
+    check(int(router(':put [:len [/ip hotspot cookie find mac-address="02:00:00:00:10:01"]]'))>0,'Cookie do cliente pago criado')
+    execute('exec','-T','client-a','ip','link','set','hotspot','down')
+    try:
+        deadline=time.monotonic()+75
+        while time.monotonic()<deadline:
+            if router(':put [:len [/ip hotspot active find server="LAB-A"]]')=='0' and state()['orders'][0]['acctstoptime'] is not None:break
+            time.sleep(2)
+        else:raise RuntimeError('Keepalive não encerrou a sessão do cliente desconectado.')
+        check(int(router(':put [:len [/ip hotspot cookie find mac-address="02:00:00:00:10:01"]]'))>0,'Ausência curta preserva cookie e encerra accounting')
+    finally:
+        execute('exec','-T','client-a','ip','link','set','hotspot','up')
     response=''
     for _ in range(15):
         response=execute('exec','-T','client-a','curl','--silent','--max-time','10','http://10.203.40.10/',capture=True)
         if 'FIRESPOT-LAB-INTERNET-OK' in response:break
         time.sleep(1)
     check('FIRESPOT-LAB-INTERNET-OK' in response,'MAC cookie reconecta o acesso pago')
+    check(router(':put [/ip hotspot active get [find server="LAB-A"] login-by]')=='mac-cookie','Reconexão autenticada por MAC cookie, sem navegador')
     execute('exec','-T','client-b','python3','/opt/lab/smoke.py','courtesy')
     check(state()['active_accounting']>=2,'Duas instalações têm accounting ativo')
     execute('preset','free_sponsored')

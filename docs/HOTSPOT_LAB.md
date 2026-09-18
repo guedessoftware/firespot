@@ -62,6 +62,8 @@ A instalação gera contas SQL separadas para a aplicação e o RADIUS. O FreeRA
 
 O CHR recebe CoA em UDP **3799**, somente pela rede de serviços. O tempo provisório e o tempo pago são geridos pelas funções existentes da aplicação. A promoção do acesso passa pelo webhook e pelo receptor CoA real do RouterOS. O intervalo de accounting é 15 segundos.
 
+O perfil de usuário do laboratório tem keepalive de 10 segundos para testar a saída e o retorno do dispositivo sem esperar vários minutos. Isso não altera o lease DHCP nem o prazo de 20 minutos dos cookies. Para testar reconexão, interrompa a interface do cliente: [o RouterOS apaga o MAC cookie ao remover administrativamente uma sessão ativa](https://help.mikrotik.com/docs/spaces/ROS/pages/56459266/HotSpot%2B-%2BCaptive%2Bportal).
+
 ```bash
 # Teste UDP real: PAP, CHAP, senha/MAC inválidos, contador e Start/Interim/Stop.
 bash dev/lab.sh exec -T web php dev/radius/smoke.php

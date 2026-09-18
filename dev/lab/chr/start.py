@@ -70,7 +70,7 @@ def config():
         '/radius incoming set accept=yes port=3799',
         '/ip service set [find name=ssh] address=10.203.30.0/24',
         *[f'/ip service set {name} disabled=yes' for name in ['telnet','ftp','www','www-ssl','api','api-ssl','winbox','reverse-proxy']],
-        '/ip hotspot user profile set [find name=default] add-mac-cookie=yes mac-cookie-timeout=20m shared-users=1',
+        '/ip hotspot user profile set [find name=default] add-mac-cookie=yes mac-cookie-timeout=20m shared-users=1 keepalive-timeout=10s',
         ':if ([:len [/file find name="hotspot"]]=0) do={/file add name=hotspot type=directory}',
     ]
     for vlan in [10,20]:
