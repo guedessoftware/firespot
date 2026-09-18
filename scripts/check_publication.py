@@ -34,6 +34,8 @@ def git(*arguments):
 def private_path(name):
     parts = pathlib.PurePosixPath(name).parts
     base = parts[-1].lower()
+    if name.startswith(('dev/.local/', 'releases/')):
+        return True
     if any(p in {'backups', 'archive', '.vscode', 'logs', 'cache', 'storage', 'tmp', 'ops', '.well-known'} for p in parts):
         return True
     if base == '.env' or (base.startswith('.env.') and base != '.env.example'):

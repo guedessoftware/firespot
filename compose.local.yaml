@@ -1,0 +1,71 @@
+name: firespot-local
+
+services:
+  db:
+    image: mariadb:10.6
+    environment:
+      MARIADB_DATABASE: firespot_local
+      MARIADB_USER: firespot_local
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      TZ: America/Manaus
+    secrets:
+      - db_password
+      - db_root_password
+    volumes:
+      - database:/var/lib/mysql
+    networks:
+      - local
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  web:
+    build:
+      context: ./dev
+    ports:
+      - "127.0.0.1:${FIRESPOT_LOCAL_PORT:-8090}:80"
+    environment:
+      FIRESPOT_ENV_PATH: /etc/firespot/firespot.env
+      FIRESPOT_MASTER_KEY_PATH: /etc/firespot/master.key
+      TZ: America/Manaus
+    secrets:
+      - app_environment
+      - master_key
+    volumes:
+      - .:/var/www/html:ro
+      - portal_uploads:/var/www/html/portal-v3/uploads
+      - ads_uploads:/var/www/html/assets/ads
+    networks:
+      - local
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://127.0.0.1/dashboard/login.php]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+networks:
+  local:
+    internal: true
+
+volumes:
+  database:
+  portal_uploads:
+  ads_uploads:
+
+secrets:
+  db_password:
+    file: ./dev/.local/db-password
+  db_root_password:
+    file: ./dev/.local/db-root-password
+  app_environment:
+    file: ./dev/.local/firespot.env
+  master_key:
+    file: ./dev/.local/master.key

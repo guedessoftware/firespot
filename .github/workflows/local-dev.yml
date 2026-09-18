@@ -1,0 +1,33 @@
+name: Desenvolvimento local
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Testar geração local e publicação por alterações
+        run: python3 tests/local_workflow_test.py
+      - name: Gerar credenciais fictícias
+        run: python3 dev/setup.py --port 8090
+      - name: Iniciar Apache, PHP e MariaDB isolados
+        run: bash dev/local.sh up -d --build --wait --wait-timeout 240
+      - name: Instalar banco e repetir sem recriar credenciais
+        run: |
+          bash dev/local.sh exec -T web php dev/bootstrap.php
+          bash dev/local.sh exec -T web php dev/bootstrap.php
+      - name: Testar login e proteção de arquivos internos
+        run: python3 dev/smoke.py
+      - name: Diagnóstico em caso de falha
+        if: failure()
+        run: bash dev/local.sh logs --tail 60
+      - name: Encerrar ambiente de teste
+        if: always()
+        run: bash dev/local.sh down -v

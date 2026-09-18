@@ -4,7 +4,7 @@
 
 O FireSpot reúne portal cativo, controle de acesso, estabelecimentos, equipamentos e operação financeira em uma aplicação PHP. Permite oferecer internet paga, cortesia, acesso patrocinado e benefícios para assinantes, com políticas próprias para cada ponto de acesso.
 
-[Recursos](#recursos) · [Instalação](#instalação-completa) · [FreeRADIUS](#configuração-do-freeradius) · [MikroTik](#mikrotik-e-primeiro-hotspot) · [Manutenção](#operação-atualizações-e-backup) · [Problemas comuns](#problemas-comuns)
+[Recursos](#recursos) · [Desenvolvimento local](docs/LOCAL_DEVELOPMENT.md) · [Instalação](#instalação-completa) · [FreeRADIUS](#configuração-do-freeradius) · [MikroTik](#mikrotik-e-primeiro-hotspot) · [Publicação](docs/DEPLOYMENT.md) · [Problemas comuns](#problemas-comuns)
 
 ## Recursos
 
@@ -58,6 +58,22 @@ Referência dos comandos: **Ubuntu Server 22.04 LTS, Apache 2.4, PHP 8.1, MariaD
 | Integrações | Credenciais próprias do Mercado Pago; HubSoft e publicidade são opcionais. |
 
 A árvore atual usa arquivos PHP diretamente e não inclui manifesto Composer ou etapa obrigatória de build Node.
+
+## Desenvolvimento local no Linux
+
+Com Git, Python 3 e Docker Engine/Compose instalados:
+
+```bash
+git clone https://github.com/guedessoftware/firespot.git
+cd firespot
+python3 dev/setup.py --port 8090
+bash dev/local.sh up -d --build --wait --wait-timeout 240
+bash dev/local.sh exec -T web php dev/bootstrap.php
+```
+
+Acesse **http://localhost:8090/dashboard/login.php**, usuário **`admin_local`**. Consulte a senha gerada com `cat dev/.local/admin-password`. A porta é configurável; 8080 não é usada. Banco e uploads são locais, e não há dados de produção nem integrações externas ativadas.
+
+Veja o [guia local](docs/LOCAL_DEVELOPMENT.md) para configuração, troca de porta, testes e rotina Git. Para enviar mudanças ao servidor, siga o [guia de publicação](docs/DEPLOYMENT.md), com conferência dos arquivos, backup e rollback. Push no GitHub não faz deploy automático.
 
 ## Instalação completa
 

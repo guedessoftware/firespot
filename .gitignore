@@ -87,3 +87,7 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# Credenciais de desenvolvimento e pacotes de atualização
+/dev/.local/
+/releases/
