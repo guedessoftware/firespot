@@ -116,9 +116,15 @@ Para desenvolver integrações, use somente contas de teste e equipamentos de la
 
 ## 5. RADIUS e MikroTik no desenvolvimento
 
-O banco contém as tabelas SQL do RADIUS. A imagem web inclui `radclient`, mas **não inicia um servidor FreeRADIUS** nem autentica dispositivos físicos. Isso é suficiente para desenvolver painéis e regras locais; o teste completo de acesso depende de um laboratório com RADIUS e NAS próprios.
+O Docker inicia **FreeRADIUS 3 com SQL, PAP, CHAP, contador de tempo e accounting**. O serviço `bootstrap` instala o banco vazio, cria o administrador local e concede ao usuário SQL do RADIUS somente as permissões necessárias. Os segredos são gerados em `dev/.local/`; nenhuma porta UDP é publicada no host.
 
-Para montar esse laboratório, siga a [configuração FreeRADIUS](../README.md#configuração-do-freeradius) com banco e segredos exclusivos de teste. Não aponte o RADIUS ou o NAS de produção para este banco local.
+Após atualizar um ambiente existente, execute novamente `python3 dev/setup.py` para gerar os dois novos segredos sem substituir as chaves anteriores. Valide o serviço com:
+
+```bash
+bash dev/local.sh exec -T web php dev/radius/smoke.php
+```
+
+O teste troca pacotes UDP reais, valida PAP e CHAP, rejeita senha/MAC incorretos, verifica tempo restante e confirma Start/Interim/Stop no SQL. Não aponte o RADIUS ou o NAS de produção para este banco local.
 
 Antes de analisar ou alterar o fluxo de conexão, leia as duas regras permanentes:
 

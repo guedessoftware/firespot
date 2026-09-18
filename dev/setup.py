@@ -9,6 +9,30 @@ import secrets
 import socket
 
 
+def radius_settings(directory):
+    names = ['radius-db-password', 'radius-probe-secret']
+    present = [(directory / name).exists() for name in names]
+    if any(present) and not all(present):
+        raise ValueError('Configuração RADIUS parcial; preserve as chaves e revise os arquivos.')
+    if not any(present):
+        for name in names:
+            descriptor = os.open(directory / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(descriptor, 'w') as output:
+                output.write(secrets.token_hex(24) + '\n')
+    for name in names:
+        if (directory / name).is_symlink() or not (directory / name).is_file():
+            raise ValueError('Arquivo de segredo RADIUS inválido.')
+    path = directory / 'firespot.env'
+    content = path.read_text()
+    values = {'COURTESY_RADIUS_PROBE_HOST': 'radius', 'COURTESY_RADIUS_PROBE_PORT': '1812',
+              'COURTESY_RADIUS_PROBE_SECRET': (directory / 'radius-probe-secret').read_text().strip()}
+    existing = {line.split('=', 1)[0] for line in content.splitlines() if '=' in line}
+    addition = ''.join(f'{key}={value}\n' for key, value in values.items() if key not in existing)
+    if addition:
+        with path.open('a') as output:
+            output.write(('' if content.endswith('\n') else '\n') + addition)
+
+
 def setup(directory, port=None):
     directory = Path(directory)
     if directory.exists():
@@ -24,6 +48,7 @@ def setup(directory, port=None):
                 raise ValueError('Configuração de porta inválida.')
             if port is not None and port != current_port:
                 raise ValueError('Ambiente já configurado. Consulte a troca de porta em docs/LOCAL_DEVELOPMENT.md.')
+            radius_settings(directory)
             print('Ambiente local já existe; credenciais e porta preservadas.')
             return
         raise ValueError('Configuração local parcial; revise antes de gerar novas chaves.')
@@ -64,6 +89,7 @@ def setup(directory, port=None):
         descriptor = os.open(directory / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(descriptor, 'w') as output:
             output.write(content)
+    radius_settings(directory)
     print('Ambiente local criado. Senha do admin_local: dev/.local/admin-password')
 
 

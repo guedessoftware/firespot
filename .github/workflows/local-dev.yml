@@ -25,6 +25,8 @@ jobs:
           bash dev/local.sh exec -T web php dev/bootstrap.php
       - name: Testar login e proteção de arquivos internos
         run: python3 dev/smoke.py
+      - name: Testar RADIUS e accounting reais
+        run: bash dev/local.sh exec -T web php dev/radius/smoke.php
       - name: Diagnóstico em caso de falha
         if: failure()
         run: |

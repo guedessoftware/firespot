@@ -42,11 +42,59 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      bootstrap:
+        condition: service_completed_successfully
     healthcheck:
       test: [CMD, curl, --fail, --silent, http://127.0.0.1/dashboard/login.php]
       interval: 5s
       timeout: 5s
       retries: 20
+      start_period: 10s
+
+  bootstrap:
+    build:
+      context: ./dev
+    command: [php, dev/radius/bootstrap.php]
+    environment:
+      FIRESPOT_ENV_PATH: /etc/firespot/firespot.env
+      FIRESPOT_MASTER_KEY_PATH: /etc/firespot/master.key
+    secrets:
+      - app_environment
+      - master_key
+      - db_root_password
+      - radius_db_password
+    volumes:
+      - .:/var/www/html:ro
+      - portal_uploads:/var/www/html/portal-v3/uploads
+      - ads_uploads:/var/www/html/assets/ads
+    networks:
+      - local
+    depends_on:
+      db:
+        condition: service_healthy
+
+  radius:
+    build:
+      context: ./dev
+      dockerfile: radius/Dockerfile
+    environment:
+      FIRESPOT_RADIUS_LOCAL: "1"
+      TZ: America/Manaus
+    secrets:
+      - radius_db_password
+      - radius_probe_secret
+    networks:
+      - local
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, /opt/firespot-radius/health.sh]
+      interval: 10s
+      timeout: 5s
+      retries: 15
       start_period: 10s
 
   proxy:
@@ -87,3 +135,7 @@ secrets:
     file: ./dev/.local/firespot.env
   master_key:
     file: ./dev/.local/master.key
+  radius_db_password:
+    file: ./dev/.local/radius-db-password
+  radius_probe_secret:
+    file: ./dev/.local/radius-probe-secret
