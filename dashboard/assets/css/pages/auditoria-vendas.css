@@ -1,0 +1,4 @@
+.audit-sales-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.audit-sales-filters #age{width:90px}
+.audit-sales-output{margin-top:12px}
+.audit-sales-filters :focus-visible{outline:3px solid color-mix(in srgb,var(--primary,#ff5b00) 35%,transparent);outline-offset:2px}

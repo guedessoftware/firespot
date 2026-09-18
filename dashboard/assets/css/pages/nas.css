@@ -1,0 +1,2 @@
+.nas-notice--error{border:1px solid #fecaca;background:#fee2e2;color:#b91c1c}.nas-notice--success{border:1px solid #bbf7d0;background:#ecfdf5;color:#166534}.nas-empty-row{padding:12px}
+[data-theme="dark"] .nas-notice--error{color:#fecaca;background:#450a0a;border-color:#b91c1c}[data-theme="dark"] .nas-notice--success{color:#bbf7d0;background:#052e1a;border-color:#166534}

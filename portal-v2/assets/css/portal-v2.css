@@ -1,0 +1,555 @@
+/* ========================================
+   Portal V2 - Modern Hotspot Design
+   FireSpot WiFi System
+   ======================================== */
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Variable-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --orange: #ff7a00;
+  --orange-soft: #ffe0c2;
+  --black: #111111;
+  --gray-100: #f5f5f7;
+  --gray-200: #e5e5ea;
+  --gray-500: #6b6b7a;
+  --radius-lg: 18px;
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background: #111111;
+  color: var(--black);
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.screen {
+  background: #ffffff;
+  width: 360px;
+  max-width: 100%;
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+  padding: 22px 20px 20px;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.screen.active {
+  display: flex;
+}
+
+.screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
+}
+
+.brand-subtitle {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+.badge-small {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-500);
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: var(--black);
+  line-height: 1.2;
+}
+
+p {
+  font-size: 13px;
+  color: var(--gray-500);
+  line-height: 1.4;
+}
+
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+
+.card-soft {
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.card-soft strong {
+  font-size: 13px;
+  color: var(--black);
+}
+
+.pill {
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--black);
+}
+
+.input-group {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-label {
+  font-size: 12px;
+  color: var(--black);
+  font-weight: 500;
+}
+
+.input-field {
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  padding: 10px 12px;
+  font-size: 13px;
+  outline: none;
+  font-family: var(--font-main);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-field:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.12);
+}
+
+.input-field.is-invalid {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+}
+
+.input-hint {
+  font-size: 11px;
+  color: var(--gray-500);
+  line-height: 1.3;
+}
+
+.input-error {
+  font-size: 11px;
+  color: #dc2626;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.input-error[hidden] {
+  display: none;
+}
+
+.btn {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+  font-family: var(--font-main);
+}
+
+.btn-primary {
+  background: var(--orange);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(255, 122, 0, 0.45);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(255, 122, 0, 0.55);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-outline {
+  background: #ffffff;
+  border: 1px solid var(--black);
+  color: var(--black);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--gray-500);
+  border: none;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.btn-ghost span {
+  text-decoration: underline;
+}
+
+.btn-ghost a {
+  color: var(--gray-500);
+  text-decoration: underline;
+}
+
+.link-inline {
+  font-size: 12px;
+  margin-top: 10px;
+  color: var(--black);
+  text-align: center;
+}
+
+.link-inline a {
+  color: var(--black);
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Tela B - Upgrade */
+.alert {
+  background: var(--orange-soft);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--black);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.timer {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--gray-200);
+  overflow: hidden;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.progress-fill {
+  width: 60%;
+  height: 100%;
+  background: var(--orange);
+  transition: width 0.3s ease;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  font-size: 12px;
+}
+
+.compare-card {
+  border-radius: 14px;
+  border: 1px solid var(--gray-200);
+  padding: 10px 10px 9px;
+  background: #ffffff;
+}
+
+.compare-card.highlight {
+  border-color: var(--orange);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+}
+
+.banner-error {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #991b1b;
+  margin-bottom: 16px;
+}
+
+.compare-title {
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.compare-title span {
+  font-size: 11px;
+  color: var(--gray-500);
+  font-weight: 400;
+}
+
+.list-check {
+  list-style: none;
+  margin-top: 4px;
+}
+
+.list-check li {
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+
+.list-check li::before {
+  content: "✔";
+  font-size: 10px;
+  margin-top: 1px;
+  color: var(--orange);
+}
+
+/* Tela C - Planos */
+.plans {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plan-card {
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: border 0.15s ease, box-shadow 0.15s ease, transform 0.08s ease;
+  background: #ffffff;
+}
+
+.plan-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.plan-card.recommended {
+  border-color: var(--orange);
+  box-shadow: 0 10px 24px rgba(255, 122, 0, 0.28);
+  position: relative;
+}
+
+.plan-card.selected {
+  border-color: var(--orange);
+  border-width: 2px;
+  box-shadow: 0 8px 20px rgba(255, 122, 0, 0.35);
+}
+
+.plan-info-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 3px;
+}
+
+.plan-info-sub {
+  font-size: 11px;
+  color: var(--gray-500);
+  line-height: 1.3;
+}
+
+.plan-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.plan-price-old {
+  font-size: 10px;
+  text-decoration: line-through;
+  color: var(--gray-500);
+  display: block;
+}
+
+.plan-badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--black);
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trust {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+.payment-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.pay-pill {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--gray-200);
+}
+
+.social-proof {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--black);
+}
+
+.selection-bar {
+  margin-top: 16px;
+  border-radius: 16px;
+  padding: 10px 12px;
+  background: var(--gray-100);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--black);
+}
+
+.selection-bar strong {
+  display: block;
+}
+
+/* Tela D - Confirmação */
+.status-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--orange-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: var(--orange);
+  margin: 0 auto 14px;
+}
+
+.center {
+  text-align: center;
+}
+
+.summary-card {
+  margin-top: 16px;
+  border-radius: 16px;
+  background: var(--gray-100);
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.highlight-text {
+  font-size: 12px;
+  margin-top: 12px;
+  color: var(--black);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body {
+    padding: 16px;
+  }
+  .screen {
+    width: 100%;
+  }
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen.active {
+  animation: fadeIn 0.3s ease-out;
+}

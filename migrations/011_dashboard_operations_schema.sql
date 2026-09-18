@@ -1,0 +1,57 @@
+CREATE TABLE IF NOT EXISTS custom_ads (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(200) NOT NULL,
+  image_url VARCHAR(500) NOT NULL,
+  link_url VARCHAR(500) NULL,
+  duration_sec INT NOT NULL DEFAULT 0,
+  weight INT NOT NULL DEFAULT 1,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY(active), KEY(weight)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS custom_ads_events (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  ad_id BIGINT NOT NULL,
+  username VARCHAR(64) NULL,
+  mac VARCHAR(32) NULL,
+  event ENUM('impression','interest_yes','interest_no') NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY(ad_id), KEY(event), KEY(created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS promo_queue (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  to_msisdn VARCHAR(32) NOT NULL,
+  msg TEXT NOT NULL,
+  status ENUM('pending','sending','sent','error') NOT NULL DEFAULT 'pending',
+  attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  last_error TEXT NULL,
+  scheduled_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  sent_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL,
+  KEY (status, scheduled_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS nas_health (
+  nas_id INT(11) UNSIGNED NOT NULL PRIMARY KEY,
+  status VARCHAR(16) NOT NULL,
+  checked_at DATETIME NOT NULL,
+  latency_ms INT(11) DEFAULT NULL,
+  message VARCHAR(255) DEFAULT NULL,
+  uptime VARCHAR(64) DEFAULT NULL,
+  routeros_version VARCHAR(64) DEFAULT NULL,
+  board_model VARCHAR(100) DEFAULT NULL,
+  cpu_load VARCHAR(32) DEFAULT NULL,
+  memory_free VARCHAR(32) DEFAULT NULL,
+  memory_total VARCHAR(32) DEFAULT NULL,
+  interface_count INT(11) DEFAULT NULL,
+  hotspot_host_count INT(11) UNSIGNED DEFAULT NULL,
+  temperature VARCHAR(32) DEFAULT NULL,
+  voltage VARCHAR(32) DEFAULT NULL,
+  last_success_at DATETIME DEFAULT NULL,
+  last_error_at DATETIME DEFAULT NULL,
+  error_detail VARCHAR(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

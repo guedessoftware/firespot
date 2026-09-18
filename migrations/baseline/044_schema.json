@@ -1,0 +1,10 @@
+{
+    "schema_version": "044",
+    "application_table_count": 88,
+    "schema_sha256": "8b00f163e3b01b1969a8c82719b2978797afb48a523e7f108763f607baaf2ac4",
+    "data_included": false,
+    "excluded_tables": [
+        "schema_migrations"
+    ],
+    "generated_at": "2026-09-06T13:16:23-04:00"
+}

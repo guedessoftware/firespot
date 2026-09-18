@@ -1,0 +1,18 @@
+Options -Indexes
+
+<IfModule mod_headers.c>
+  Header always unset Feature-Policy
+  Header always set Permissions-Policy "camera=(self)"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+<FilesMatch "(?i)(^\.|(?:firespot.*key|master\.key)$|\.(?:env|ini|log|sql|sqlite|bak|backup|old|orig|save|swp|dist|ya?ml|lock)$)">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^(?:app|archive|backups|docs|installers|migrations|ops|tests|phpmyadmin|\.git|\.github|\.vscode)(?:/|$) - [R=404,L]
+</IfModule>

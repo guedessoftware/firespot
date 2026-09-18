@@ -1,0 +1,6 @@
+.sales-actions-column{width:120px}
+.sales-status{cursor:pointer;font-weight:650}
+.sales-status--paid{color:#047857}
+.sales-status--pending{color:#b45309}
+.sales-status--cancelled{color:#dc2626}
+.sales-status--refunded{color:#0369a1}

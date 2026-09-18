@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FireSpot — Wi‑Fi rápido, seguro e acessível | FIRENETWORK LTDA</title>
+  <meta name="description" content="FireSpot é o serviço de hotspot da FIRENETWORK LTDA: internet rápida, segura e acessível em pontos públicos e privados. Acesso diário gratuito com upgrade Premium e acesso liberado para clientes FIRENETWORK." />
+  <style>
+    :root{
+      --bg: #0b0b10;
+      --card: #11121a;
+      --muted: #aab0c0;
+      --text: #e9ecf2;
+      --brand: #ff4d2d;   /* fogo */
+      --brand-2: #ff9b2f; /* brasa */
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:
+        radial-gradient(1200px 600px at 85% -10%, rgba(255,77,45,.20), transparent 60%),
+        radial-gradient(900px 500px at -10% 0%, rgba(255,155,47,.16), transparent 50%),
+        linear-gradient(180deg, #0a0a0f 0%, #0d0e14 100%);
+      color:var(--text); font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    a{color:inherit}
+    .container{width:min(1120px, 92%); margin-inline:auto}
+
+    /* Header */
+    header{position:sticky; top:0; z-index:40; backdrop-filter:saturate(120%) blur(8px); background:rgba(8,9,14,.55); border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
+    .brand{display:flex; align-items:center; gap:12px; font-weight:700}
+    .logo{width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:conic-gradient(from 210deg, var(--brand), var(--brand-2)); box-shadow: 0 6px 18px rgba(255,90,48,.35)}
+    .logo svg{filter:drop-shadow(0 2px 8px rgba(0,0,0,.6))}
+    .nav a.button{padding:10px 16px; border-radius:12px; background:linear-gradient(90deg, var(--brand), var(--brand-2)); color:#0a0a0f; font-weight:700; text-decoration:none; box-shadow:var(--shadow)}
+    .nav a.button.secondary{background:#1a1b25; color:var(--text); border:1px solid rgba(255,255,255,.08); box-shadow:none}
+
+    /* Hero */
+    .hero{padding:64px 0 42px}
+    .hero-inner{display:grid; grid-template-columns: 1.2fr 1fr; gap:24px; align-items:center}
+    .badge{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03); color:var(--muted); font-size:13px}
+    .title{font-size: clamp(28px, 3.8vw, 54px); line-height:1.05; margin:10px 0 12px}
+    .subtitle{font-size: clamp(16px, 1.8vw, 19px); color:#cfd5e1}
+    .cta{display:flex; gap:12px; margin-top:20px; flex-wrap:wrap}
+    .cta .btn{padding:12px 16px; border-radius:14px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:10px}
+    .btn.primary{background:linear-gradient(90deg, var(--brand), var(--brand-2)); color:#0a0a0f; box-shadow:var(--shadow)}
+    .btn.ghost{background:#1a1b25; color:var(--text); border:1px solid rgba(255,255,255,.08)}
+
+    .hero-card{background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)}
+    .hero-metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px}
+    .metric{background:#121320; border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:12px}
+    .metric .k{font-size:22px; font-weight:800}
+    .metric .hint{color:var(--muted); font-size:12px}
+
+    /* Sections */
+    section{padding:56px 0}
+    .section-title{font-size:28px; margin:0 0 6px}
+    .section-sub{color:var(--muted); margin:0 0 22px}
+
+    .grid-3{display:grid; grid-template-columns: repeat(3,1fr); gap:16px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)}
+    .icon{width:28px; height:28px; border-radius:8px; display:grid; place-items:center; background:radial-gradient(60% 60% at 50% 35%, rgba(255,255,255,.15), transparent), linear-gradient(90deg, var(--brand), var(--brand-2))}
+    .card h3{margin:12px 0 6px; font-size:18px}
+    .card p{color:#cfd5e1; margin:0}
+
+    /* Plans */
+    .plans{display:grid; grid-template-columns: repeat(3,1fr); gap:16px}
+    .plan{position:relative; padding-top:24px}
+    .plan .tag{position:absolute; top: -12px; left: 18px; font-size:12px; padding:6px 10px; border-radius:999px; background:#1a1b25; border:1px solid rgba(255,255,255,.1); color:var(--muted)}
+    .plan ul{margin:0; padding:0 0 0 18px}
+    .plan li{margin:8px 0; color:#cfd5e1}
+    .plan .price{font-weight:800; font-size:26px; margin:10px 0 6px}
+    .plan .small{color:var(--muted); font-size:12px}
+
+    /* How it works */
+    .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+    .step{padding:14px; border-radius:14px; background:#101119; border:1px solid rgba(255,255,255,.06)}
+    .step .num{width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-weight:800; background:linear-gradient(90deg, var(--brand), var(--brand-2)); color:#0b0b10}
+
+    /* FAQ */
+    .faq{max-width:900px}
+    details{border:1px solid rgba(255,255,255,.08); background:#10111a; border-radius:14px; padding:14px 16px}
+    details + details{margin-top:10px}
+    summary{cursor:pointer; font-weight:700}
+    details p{color:#cfd5e1}
+
+    /* Footer */
+    footer{padding:34px 0 50px; color:var(--muted)}
+    .footer-grid{display:grid; grid-template-columns: 1.2fr 1fr 1fr; gap:18px}
+    .mini{font-size:12px}
+
+    /* Responsive */
+    @media (max-width: 920px){
+      .hero-inner{grid-template-columns: 1fr}
+      .grid-3, .plans, .steps, .footer-grid{grid-template-columns:1fr}
+      .hero{padding-top:42px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand" aria-label="FIRENETWORK LTDA">
+        <div class="logo" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 2c2 2 3.8 4.6 3.8 6.9 0 1.9-1.1 3.3-2.6 4.1 2.2-.3 4.3-1.8 5.3-4.1 2.3 4.7-1.5 10.2-6.5 10.2-4.1 0-6-2.8-6-5.6 0-2.4 1.6-4.7 3.4-6.5C9.4 8.2 9 9.3 9 10.2c0 2.1 1.7 3.6 3.6 3.6 2 0 3.6-1.7 3.6-3.6C16.2 6.7 14.1 4.2 12 2z" fill="#fff"/>
+          </svg>
+        </div>
+        <span>FIRENETWORK LTDA</span>
+      </div>
+      <nav style="display:flex; gap:10px">
+        <a href="#planos" class="button secondary">Planos</a>
+        <a href="#premium" class="button">Seja Premium</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div>
+          <span class="badge">🔥 FireSpot • Hotspot oficial da FIRENETWORK</span>
+          <h1 class="title">Wi‑Fi rápido, seguro e acessível onde você estiver</h1>
+          <p class="subtitle">O <strong>FireSpot</strong> conecta pessoas e negócios com internet de qualidade em <strong>pontos públicos e privados</strong>. Use o acesso <strong>gratuito diário (limitado)</strong>, faça <strong>upgrade para Premium</strong>, ou tenha <strong>acesso liberado</strong> sendo <strong>cliente FIRENETWORK</strong>.</p>
+          <div class="cta">
+            <a class="btn primary" href="#premium">Ativar Premium</a>
+            <a class="btn ghost" href="#comofunciona">Como funciona</a>
+          </div>
+          <div class="hero-card" style="margin-top:18px">
+            <strong>Vantagens imediatas</strong>
+            <div class="hero-metrics">
+              <div class="metric"><div class="k">Rápido</div><div class="hint">Baixa latência</div></div>
+              <div class="metric"><div class="k">Seguro</div><div class="hint">Proteções ativas</div></div>
+              <div class="metric"><div class="k">Acessível</div><div class="hint">Plano para todos</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-card" aria-label="Ilustração de conexão">
+          <img src="portal/assets/img/hero-wifi.jpg" alt="Pessoas conectadas usando Wi‑Fi em um espaço público" style="width:100%; border-radius:12px; aspect-ratio:4/3; object-fit:cover; border:1px solid rgba(255,255,255,.08)"/>
+          <p class="mini" style="margin:10px 4px 0; color:var(--muted)">Imagem meramente ilustrativa.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="diferenciais">
+      <div class="container">
+        <h2 class="section-title">Por que escolher o FireSpot?</h2>
+        <p class="section-sub">Projetado para ser simples para quem usa e robusto para quem oferece.</p>
+        <div class="grid-3">
+          <div class="card">
+            <div class="icon" aria-hidden="true">📶</div>
+            <h3>Velocidade consistente</h3>
+            <p>Rede preparada para picos de acesso com gerenciamento inteligente de tráfego.</p>
+          </div>
+          <div class="card">
+            <div class="icon" aria-hidden="true">🛡️</div>
+            <h3>Segurança em primeiro lugar</h3>
+            <p>Camadas de proteção, isolamento de clientes e políticas contra sites maliciosos.</p>
+          </div>
+          <div class="card">
+            <div class="icon" aria-hidden="true">💸</div>
+            <h3>Acessível de verdade</h3>
+            <p>Acesso gratuito diário com limite de tempo e opções Premium sob demanda.</p>
+          </div>
+          <div class="card">
+            <div class="icon" aria-hidden="true">⚡</div>
+            <h3>Ativação instantânea</h3>
+            <p>Conecte-se, abra o portal FireSpot e comece a navegar em poucos toques.</p>
+          </div>
+          <div class="card">
+            <div class="icon" aria-hidden="true">🏪</div>
+            <h3>Para locais públicos e privados</h3>
+            <p>Ideal para praças, cafés, clínicas, eventos, coworkings, hotéis e condomínios.</p>
+          </div>
+          <div class="card">
+            <div class="icon" aria-hidden="true">📍</div>
+            <h3>Roaming nos pontos FireSpot</h3>
+            <p>Ao virar Premium ou cliente FIRENETWORK, sua sessão continua sem interrupções.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="premium">
+      <div class="container">
+        <h2 class="section-title">Premium & Cliente FIRENETWORK: as melhores experiências</h2>
+        <p class="section-sub">Seja Premium para remover limites e anúncios; sendo cliente FIRENETWORK você tem acesso liberado automaticamente nos pontos FireSpot.</p>
+        <div class="plans">
+          <div class="card plan">
+            <span class="tag">Para todos</span>
+            <h3>Gratuito Diário (limitado)</h3>
+            <p class="price">R$ 0</p>
+            <p class="small">Sessões de navegação com tempo e velocidade limitados*</p>
+            <ul>
+              <li>Ideal para acesso rápido</li>
+              <li>Portal de login simples</li>
+              <li>Patrocinado por parceiros</li>
+            </ul>
+            <div class="cta" style="margin-top:14px">
+              <a class="btn ghost" href="#comofunciona">Usar agora</a>
+            </div>
+          </div>
+
+          <div class="card plan" style="border-color:rgba(255,155,47,.5)">
+            <span class="tag" style="background:linear-gradient(90deg,var(--brand),var(--brand-2)); color:#0b0b10; border:none">Mais popular</span>
+            <h3>Premium FireSpot</h3>
+            <p class="price">a partir de R$ —</p>
+            <p class="small">Remova limites de tempo, navegue sem anúncios e com prioridade de velocidade.</p>
+            <ul>
+              <li>Tempo estendido ou ilimitado conforme a oferta</li>
+              <li>Velocidade máxima disponível no ponto</li>
+              <li>Sem anúncios no portal</li>
+              <li>Suporte prioritário</li>
+              <li>Pagamento rápido (Pix, cartão)</li>
+            </ul>
+            <div class="cta" style="margin-top:14px">
+              <a class="btn primary" href="#comprepremium">Quero ser Premium</a>
+            </div>
+          </div>
+
+          <div class="card plan">
+            <span class="tag">Cliente FIRENETWORK</span>
+            <h3>Acesso Liberado</h3>
+            <p class="price">incluso no seu plano</p>
+            <p class="small">Clientes FIRENETWORK navegam sem contagem de tempo nos pontos FireSpot compatíveis**</p>
+            <ul>
+              <li>Login automático autenticado</li>
+              <li>Velocidade priorizada</li>
+              <li>Melhor experiência em mobilidade</li>
+              <li>Atendimento exclusivo</li>
+            </ul>
+            <div class="cta" style="margin-top:14px">
+              <a class="btn ghost" href="#assine">Quero ser cliente FIRENETWORK</a>
+            </div>
+          </div>
+        </div>
+        <p class="mini" style="margin-top:12px">* Limites podem variar por local e horário. ** Sujeito a elegibilidade do plano e disponibilidade técnica.</p>
+      </div>
+    </section>
+
+    <section id="beneficios">
+      <div class="container">
+        <h2 class="section-title">Vantagens de ser <em>Premium</em> e/ou <em>Cliente FIRENETWORK</em></h2>
+        <div class="grid-3">
+          <div class="card">
+            <h3>Mais tempo online</h3>
+            <p>Premium: sessões longas ou sem limite. Cliente FIRENETWORK: acesso liberado nos pontos FireSpot elegíveis.</p>
+          </div>
+          <div class="card">
+            <h3>Velocidade no topo</h3>
+            <p>Prioridade de banda e otimizações para streaming, reuniões e jogos na nuvem.</p>
+          </div>
+          <div class="card">
+            <h3>Sem anúncios</h3>
+            <p>Portal limpo para Premium e experiência simplificada para clientes FIRENETWORK.</p>
+          </div>
+          <div class="card">
+            <h3>Roaming contínuo</h3>
+            <p>Troque de ambiente mantendo a sessão ativa quando houver múltiplos pontos FireSpot.</p>
+          </div>
+          <div class="card">
+            <h3>Suporte prioritário</h3>
+            <p>Atendimento mais rápido em caso de dúvidas ou ajustes de acesso.</p>
+          </div>
+          <div class="card">
+            <h3>Benefícios exclusivos</h3>
+            <p>Convites para pilotos, ofertas e integração com outros serviços FIRENETWORK.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="comofunciona">
+      <div class="container">
+        <h2 class="section-title">Como funciona</h2>
+        <p class="section-sub">Conectar é simples — em poucos passos você já está navegando.</p>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><h4>Conecte-se</h4><p>Abra as redes Wi‑Fi e selecione <strong>FireSpot</strong>.</p></div>
+          <div class="step"><div class="num">2</div><h4>Portal</h4><p>O portal abre automaticamente. Caso não abra, visite <em>firespot.portal</em>.</p></div>
+          <div class="step"><div class="num">3</div><h4>Escolha o acesso</h4><p>Use o <strong>Gratuito diário</strong>, ative o <strong>Premium</strong> ou autentique-se como <strong>cliente FIRENETWORK</strong>.</p></div>
+          <div class="step"><div class="num">4</div><h4>Navegue</h4><p>Aproveite internet rápida e segura no seu dispositivo.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cobertura">
+      <div class="container">
+        <h2 class="section-title">Onde tem FireSpot?</h2>
+        <p class="section-sub">Estamos expandindo a cobertura. Procure a placa <strong>Wi‑Fi FireSpot</strong> ou pergunte no local.</p>
+        <div class="card" style="min-height:220px; display:grid; place-items:center">
+          <p style="color:var(--muted); text-align:center">Área reservada para mapa de cobertura ou lista de locais.<br/>Integre aqui seu mapa preferido (Google Maps, OpenStreetMap).</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container faq">
+        <h2 class="section-title">Perguntas frequentes</h2>
+        <details>
+          <summary>O acesso gratuito tem limite?</summary>
+          <p>Sim. O FireSpot oferece sessões gratuitas diárias com tempo e/ou velocidade limitados, variando conforme o local.</p>
+        </details>
+        <details>
+          <summary>Como viro Premium?</summary>
+          <p>No portal FireSpot, escolha a opção Premium, selecione a oferta disponível (diária, semanal, mensal) e finalize o pagamento.</p>
+        </details>
+        <details>
+          <summary>Sou cliente FIRENETWORK. Preciso pagar algo?</summary>
+          <p>Clientes FIRENETWORK têm acesso liberado nos pontos FireSpot compatíveis, sem contagem de tempo. Basta autenticar com seus dados de cliente.</p>
+        </details>
+        <details>
+          <summary>É seguro usar o FireSpot?</summary>
+          <p>Aplicamos boas práticas de segurança como isolamento de dispositivos, monitoramento e políticas contra páginas maliciosas. Ainda assim, recomendamos manter atualizações do seu dispositivo e usar HTTPS sempre que possível.</p>
+        </details>
+        <details>
+          <summary>Quais métodos de pagamento aceitam no Premium?</summary>
+          <p>Pix e cartão (conforme disponibilidade do ponto). Em breve, novas opções.</p>
+        </details>
+        <details>
+          <summary>Posso oferecer FireSpot no meu negócio?</summary>
+          <p>Sim! O FireSpot foi pensado para comércios, clínicas, eventos e condomínios. Fale com a equipe de vendas para uma proposta personalizada.</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:8px">
+          <div class="logo" aria-hidden="true"></div>
+          <strong>FireSpot</strong> — by <strong>FIRENETWORK LTDA</strong>
+        </div>
+        <p class="mini">© <span id="year"></span> FIRENETWORK LTDA. Todos os direitos reservados.<br/>Disponibilidade e condições de acesso variam conforme o ponto de acesso.</p>
+      </div>
+      <div>
+        <strong>Contato</strong>
+        <p class="mini">Comercial & Parceiros: <a href="mailto:comercial@firenetwork.com.br">comercial@firenetwork.com.br</a><br/>Suporte: <a href="mailto:suporte@firenetwork.com.br">suporte@firenetwork.com.br</a></p>
+      </div>
+      <div>
+        <strong>Links</strong>
+        <p class="mini"><a href="#planos">Planos</a> • <a href="#faq">FAQ</a> • <a href="#cobertura">Cobertura</a><br/><a href="#">Termos de Uso</a> • <a href="#">Política de Privacidade</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

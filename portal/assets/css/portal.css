@@ -1,0 +1,299 @@
+/* /portal/assets/css/portal.css */
+/* Local web fonts */
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Variable-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Variable-latin.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Variable-latin.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Variable-latin.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('../fonts/PlusJakartaSans-Variable-latin.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('../fonts/PlusJakartaSans-Variable-latin.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  --bg: #f9fafb;
+  --card: #fff;
+  --text: #333;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #eba725;
+  /* Font stacks */
+  --font-sans: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-heading: 'Plus Jakarta Sans', var(--font-sans);
+}
+[data-theme="dark"] {
+  --bg: #1e1e2f;
+  --card: #2c2c3c;
+  --text: #f1f1f1;
+  --muted: #9ca3af;
+  --border: #3a3a4a;
+  --accent: #4f8cff;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+h1,
+h2,
+h3 {
+  margin: 8px 0;
+  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  font-weight: 700;
+}
+label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+input[type="text"],
+input[type="password"],
+input[type="date"],
+input[type="tel"],
+input[type="email"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.35;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+/* Melhorias de interação */
+input[type="text"],
+input[type="password"],
+input[type="date"],
+input[type="tel"],
+input[type="email"],
+textarea,
+select {
+  box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
+}
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: color-mix(in oklab, var(--border), var(--text) 20%);
+}
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(235, 167, 37, .28); /* ring do accent (claro) */
+}
+body[data-theme="dark"] input:focus,
+body[data-theme="dark"] input:focus-visible,
+body[data-theme="dark"] textarea:focus,
+body[data-theme="dark"] textarea:focus-visible,
+body[data-theme="dark"] select:focus,
+body[data-theme="dark"] select:focus-visible {
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, .28); /* ring do accent (escuro) */
+}
+
+/* Placeholder e estados */
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: .85;
+}
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: .7;
+  background: color-mix(in oklab, var(--card), var(--bg) 25%);
+  cursor: not-allowed;
+}
+
+/* Ajuda abaixo de campos (usar <small class="help">) */
+.help {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+}
+.btn:hover {
+  border-color: var(--accent);
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #111;
+}
+.btn.success {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+.btn.success:hover {
+  border-color: #047857;
+  background: #059669;
+}
+.btn.danger {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+}
+.btn.danger:hover {
+  border-color: #b91c1c;
+  background: #dc2626;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th,
+.table td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 6px;
+  text-align: left;
+}
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-responsive .table { min-width: 720px; }
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+.notice {
+  padding: 10px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.02);
+}
+.footer {
+  padding: 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ====== Mobile tweaks ====== */
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .container { padding: 12px; }
+  .card { padding: 12px; }
+  .btn { padding: 8px 12px; font-size: 14px; }
+  h1,h2,h3 { font-size: clamp(16px, 4vw, 20px); }
+  .badge { font-size: 11px; }
+  /* Modifier: keep header items in one line on small screens */
+  .header.inline { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; }
+  .header.inline > * { white-space: nowrap; }
+  /* Smaller title text in compact headers to avoid overflow */
+  .header.inline strong { font-size: 15px; }
+  /* Optional: slightly smaller links too for balance */
+  .header.inline a { font-size: 14px; }
+}
+
+/* imagens fluidas utilitário (opcional) */
+.img-fluid { max-width: 100%; height: auto; display: block; }

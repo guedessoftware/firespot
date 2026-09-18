@@ -1,0 +1,29 @@
+<html>
+<head>
+	<title>FireSpot</title>
+</head>
+<body>
+    <div style="text-align: center;">
+        <img src="img/load-connect.gif" alt="Loading">
+    </div>
+	<form name="redirect" action="https://firecdn.com.br/portal/hotspot_capture.php" method="post">
+	<input type="hidden" name="hotspot" value="$(server-name)">
+	<input type="hidden" name="mac" value="$(mac)">
+	<input type="hidden" name="ip" value="$(ip)">
+  <!-- Configuração do estabelecimento -->
+	<input type="hidden" name="fast_id" value="87654321">
+	<input type="hidden" name="newportal" value="yes">
+  <!-- fim Configuração do estabelecimento -->
+	<input type="hidden" name="chap-id" value="$(chap-id)">
+	<input type="hidden" name="chap-challenge" value="$(chap-challenge)">
+	<input type="hidden" name="link-login-only" value="$(link-login-only)">
+	<input type="hidden" name="link-orig-esc" value="$(link-orig-esc)">
+	<input type="hidden" name="error" value="$(error)">
+	</form>
+<script language="JavaScript">
+<!--
+	document.redirect.submit();
+//-->
+</script>
+</body>
+</html>

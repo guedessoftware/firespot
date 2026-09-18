@@ -1,0 +1,89 @@
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Backups e arquivos antigos
+/backups/
+/archive/
+*.bak
+*.tar.gz
+*.zip
+
+# VS Code
+/.vscode/
+/.vscode.backup-*/
+
+# Temporários e logs
+*.log
+*.tmp
+*.swp
+
+# Conteúdo gerado em runtime pelo Portal V3
+/portal-v3/uploads/branding/*
+!/portal-v3/uploads/branding/.htaccess
+!/portal-v3/uploads/branding/index.html
+
+/portal-v3/uploads/content/*
+
+
+# Configuração privada e chaves (também em subdiretórios)
+**/.env
+**/.env.*
+!**/.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+id_rsa*
+id_ed25519*
+runtime-config.php
+credentials.json
+service-account*.json
+client_secret*.json
+*.sqlite
+*.sqlite3
+*.db
+*.sql.gz
+*.sql.bz2
+*.sql.xz
+*.dump
+*.rdb
+
+# Dados locais, mídias enviadas e relatórios operacionais
+/ops/
+/logs/
+/cache/
+/storage/
+/tmp/
+/uploads/
+/.well-known/
+/assets/ads/*
+!/assets/ads/.htaccess
+!/assets/ads/index.html
+/portal-v3/uploads/*
+!/portal-v3/uploads/.htaccess
+!/portal-v3/uploads/index.html
+!/portal-v3/uploads/branding/
+/portal-v3/uploads/branding/*
+!/portal-v3/uploads/branding/.htaccess
+!/portal-v3/uploads/branding/index.html
+*.backup
+*.old
+*.orig
+*.save
+*.legacy-*
+*.7z
+*.rar
+*.tgz
+*.tar
+
+# Dependências e ambientes locais
+node_modules/
+vendor/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

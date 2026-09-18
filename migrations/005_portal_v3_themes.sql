@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS partner_portal_themes (
+  partner_id INT(11) NOT NULL,
+  theme_preset ENUM('modern','compact_blue','compact_light') NOT NULL DEFAULT 'modern',
+  show_title TINYINT(1) NOT NULL DEFAULT 1,
+  theme_mode ENUM('light','dark') NOT NULL DEFAULT 'light',
+  primary_color CHAR(7) NOT NULL DEFAULT '#ff9f1c',
+  secondary_color CHAR(7) NOT NULL DEFAULT '#ff6b00',
+  background_color CHAR(7) NOT NULL DEFAULT '#071225',
+  text_color CHAR(7) DEFAULT NULL,
+  muted_text_color CHAR(7) DEFAULT NULL,
+  hero_text_color CHAR(7) DEFAULT NULL,
+  button_text_color CHAR(7) DEFAULT NULL,
+  footer_text_color CHAR(7) DEFAULT NULL,
+  logo_path VARCHAR(255) DEFAULT NULL,
+  logo_light_path VARCHAR(255) DEFAULT NULL,
+  logo_dark_path VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (partner_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

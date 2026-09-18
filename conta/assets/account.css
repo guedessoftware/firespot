@@ -1,0 +1,64 @@
+:root{color-scheme:light;--navy:#071225;--navy2:#102846;--orange:#f59e0b;--ink:#172033;--muted:#68758b;--line:#dbe2ec;--soft:#f4f7fb;--ok:#047857;--bad:#b42318}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#eef3f9,#f8fafc 420px);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.account-top{background:var(--navy);border-bottom:3px solid var(--orange);padding:16px max(20px,calc((100% - 1120px)/2))}
+.account-brand{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none}
+.account-brand>span{display:grid;place-items:center;width:44px;height:44px;border:1px solid #31445f;border-radius:13px;background:#12213a}
+.account-brand div{display:grid}
+.account-brand small{color:#cbd5e1}
+.account-shell{width:min(1120px,calc(100% - 28px));margin:28px auto;display:grid;gap:18px}
+.account-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 12px 34px rgba(15,23,42,.06)}
+.account-auth{width:min(520px,100%);margin:7vh auto}
+.account-eyebrow{color:#b45309;text-transform:uppercase;letter-spacing:.1em;font-size:12px;font-weight:800}
+.account-card h1,.account-card h2{margin:.2em 0}
+.account-card p{color:var(--muted)}
+label{display:grid;gap:6px;font-weight:700}
+input,select,button,.button{font:inherit}
+input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:11px;background:#fff}
+.button,button{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:10px 16px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:var(--ink);text-decoration:none;font-weight:800;cursor:pointer}
+.button.primary,button.primary{border-color:var(--orange);background:var(--orange);color:#231500}
+.button.danger,button.danger{color:var(--bad);border-color:#fecaca;background:#fff7f7}
+.stack{display:grid;gap:14px}
+.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.actions form{margin:0}
+.notice{padding:12px 14px;border-radius:12px;border:1px solid}
+.notice.success{background:#ecfdf3;border-color:#a7f3d0;color:#065f46}
+.notice.error{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
+.account-hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.account-benefit{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:12px}
+.account-benefit>div{padding:16px;border-radius:14px;background:var(--soft);border:1px solid var(--line)}
+.account-benefit span{display:block;color:var(--muted);font-size:13px}
+.account-benefit strong{display:block;font-size:23px}
+.account-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;color:var(--muted)}
+.pill{display:inline-block;padding:4px 9px;border-radius:999px;background:#e7edf5;font-size:12px}
+.pill.ok{background:#d1fae5;color:#065f46}
+.pill.off{background:#fee2e2;color:#991b1b}
+.invite-reveal{display:grid;grid-template-columns:180px 1fr;gap:20px;align-items:center;background:#fff9e8;border-color:#fcd34d}
+.invite-reveal img{width:180px;height:180px;background:#fff;border-radius:12px;padding:7px}
+.invite-code{font:800 29px/1 ui-monospace,SFMono-Regular,monospace;letter-spacing:.14em}
+.subtle{color:var(--muted);font-size:13px}
+.auth-method-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}
+.auth-method-tabs button{min-height:42px;padding:8px 10px;border:0;background:transparent;color:var(--muted);box-shadow:none}
+.auth-method-tabs button[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 2px 10px rgba(15,23,42,.09)}
+.auth-method-panel{display:grid;gap:12px}
+.auth-method-panel[hidden]{display:none}
+.account-check{grid-template-columns:auto 1fr;align-items:center;font-weight:600}
+.account-check input{width:auto;margin:0}
+.account-check span{color:var(--muted)}
+footer{text-align:center;color:var(--muted);padding:10px 20px 30px}
+@media(max-width:760px){.account-grid,.account-benefit{grid-template-columns:1fr 1fr}
+.account-hero{display:grid}
+.invite-reveal{grid-template-columns:1fr}
+.invite-reveal img{margin:auto}
+}
+@media(max-width:480px){.account-benefit{grid-template-columns:1fr}
+.account-card{padding:17px}
+.invite-code{font-size:23px}
+.auth-method-tabs{grid-template-columns:1fr}
+.auth-method-tabs button{min-height:38px}
+}
+

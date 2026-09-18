@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS payments_session (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  token VARCHAR(64) NOT NULL UNIQUE,
+  ip VARCHAR(64) NOT NULL,
+  mac VARCHAR(32) NOT NULL DEFAULT '',
+  phone VARCHAR(32) NULL,
+  name VARCHAR(150) NULL,
+  amount DECIMAL(12,2) NULL,
+  amount_centavos INT UNSIGNED NULL,
+  minutes INT UNSIGNED NULL,
+  plan_label VARCHAR(80) NULL,
+  status VARCHAR(32) NOT NULL DEFAULT 'pending',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  approved_at DATETIME NULL,
+  KEY payments_session_status_idx (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
