@@ -35,8 +35,20 @@ jobs:
           import os
           from pathlib import Path
           for line in (Path(os.environ['RUNNER_TEMP']) / 'firespot-local.log').read_text().splitlines():
-              if 'Fatal error' in line or 'Uncaught' in line:
+              if any(word in line for word in ['Fatal error','Uncaught','RADIUS configuration','Error:','ValueError','PermissionError']):
                   print('::error::' + line.replace('%', '%25').replace('\r', '%0D'))
+          PY
+          bash dev/local.sh ps -a --format json > "$RUNNER_TEMP/firespot-containers.json"
+          python3 - <<'PY'
+          import json, subprocess, os
+          from pathlib import Path
+          text=Path(os.environ['RUNNER_TEMP']+'/firespot-containers.json').read_text().strip()
+          objects=json.loads(text) if text.startswith('[') else [json.loads(line) for line in text.splitlines() if line]
+          for entry in objects:
+              result=subprocess.run(['docker','inspect',entry['ID']],capture_output=True,text=True)
+              if not result.returncode:
+                  for item in json.loads(result.stdout)[0]['State'].get('Health',{}).get('Log',[]):
+                      if item['ExitCode']: print('::error::Health '+entry['Service']+': '+item['Output'].replace('%','%25').replace('\n','%0A')[:1200])
           PY
       - name: Encerrar ambiente de teste
         if: always()
