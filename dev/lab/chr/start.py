@@ -111,19 +111,25 @@ def console_login():
     serial=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
     serial.connect(str(DATA/'serial.sock'))
     child=fdspawn(os.dup(serial.fileno()),encoding='utf-8',codec_errors='replace',timeout=360)
+    child.linesep='\r'
+    console_log=(DATA/'console.log').open('w')
+    os.chmod(DATA/'console.log',0o600)
+    child.logfile_read=console_log
     child.sendline('')
     patterns=[r'(?i)login:',r'(?i)password:',r'(?i)new password:',r'(?i)repeat new password:',r'(?i)software license.*\[Y/n\]:',r'\] >',pexpect.EOF,pexpect.TIMEOUT]
     fresh=NEW_DISK
     login_count=0
-    for _ in range(20):
+    deadline=time.monotonic()+360
+    while time.monotonic()<deadline:
         # New-password prompts precede the generic password prompt.
-        index=child.expect([patterns[0],patterns[2],patterns[3],patterns[1],patterns[4],patterns[5],patterns[6],patterns[7]])
+        index=child.expect([patterns[0],patterns[2],patterns[3],patterns[1],patterns[4],patterns[5],patterns[6],patterns[7]],timeout=3)
         if index==0: child.sendline('admin+ct'); login_count+=1
         elif index in [1,2]: child.sendline(PASSWORD)
         elif index==3: child.sendline('' if fresh or (login_count==2 and not (DATA/'configured').exists()) else PASSWORD)
         elif index==4: child.sendline('n')
         elif index==5: return child,serial
-        else: raise RuntimeError('Console do CHR indisponível; verifique /data/qemu.log privado.')
+        elif index==7: child.sendline('')  # Console activation may become available only after boot.
+        else: raise RuntimeError('Console do CHR desconectado.')
     raise RuntimeError('Login do console do CHR não concluiu.')
 
 bridge('10.203.30.2','br-service','tap-service','10.203.30.254/24')
@@ -182,4 +188,9 @@ except Exception as error:
     READY.unlink(missing_ok=True); guest.terminate(); guest.wait(timeout=15)
     # Do not print serial output, which contains passwords and shared secrets.
     print('CHR initialization failed: '+type(error).__name__+': '+str(error),flush=True)
+    console=DATA/'console.log'
+    if console.exists():
+        tail=console.read_text(errors='replace')[-1800:].replace(PASSWORD,'[redacted]').replace(SECRET,'[redacted]')
+        tail=re.sub(r'\x1b\[[0-9;?]*[A-Za-z]','',tail)
+        print('CHR console diagnostic: '+tail.replace('\r',' ').replace('\n',' | '),flush=True)
     raise SystemExit(1)

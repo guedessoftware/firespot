@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import signal
 import sys
 import time
 import urllib.error
@@ -48,6 +49,12 @@ def click(selector):
     return wd('POST','/element/'+value['element-6066-11e4-a52e-4f735466cecf']+'/click',{})
 
 try:
+    # Free memory for the automated Firefox and ensure approval runs with all browsers closed.
+    gui=Path('/tmp/gui-firefox.pid')
+    if gui.exists():
+        try: os.kill(int(gui.read_text()),signal.SIGTERM)
+        except ProcessLookupError: pass
+        time.sleep(1)
     assert_ok(Path('/tmp/hotspot-ip').read_text().strip().startswith(f'10.203.{VLAN}.'),'DHCP da VLAN '+str(VLAN))
     interfaces=json.loads(subprocess.check_output(['ip','-j','-4','addr']))
     management=next(item['ifname'] for item in interfaces if any(a.get('local','').startswith('10.203.40.') for a in item['addr_info']))
@@ -71,6 +78,7 @@ try:
         assert_ok(True,'Firefox autenticou a sessão provisória por CHAP')
     elif MODE in ['courtesy','sponsored']:
         wd('POST','/url',{'url':'http://10.203.30.3/portal-v3/courtesy.php?hotspot='+CODE})
+        if MODE=='sponsored':assert_ok(script('return !!document.querySelector(".sponsored-media") && document.getElementById("courtesy-submit").disabled;'),'Patrocinado exige anúncio antes de liberar')
         click('#courtesy-submit')
         wait(lambda: b'FIRESPOT-LAB-INTERNET-OK' in subprocess.run(['curl','--silent','--max-time','3',WAN],capture_output=True).stdout,'Cortesia conectada',seconds=60)
         assert_ok(True,'Cortesia '+MODE+' via Firefox e RADIUS')

@@ -37,7 +37,20 @@ try:
     execute('approve',str(before['provider_payment_id']))
     duplicate=state()['orders'][0]
     check(duplicate['radius_paid_baseline_seconds']==after['radius_paid_baseline_seconds'],'Webhook repetido preserva baseline pago')
+    execute('exec','-T','chr','python3','/opt/lab/router.py','/ip hotspot active remove [find server="LAB-A"]')
+    time.sleep(2)
+    response=''
+    for _ in range(15):
+        response=execute('exec','-T','client-a','curl','--silent','--max-time','10','http://10.203.40.10/',capture=True)
+        if 'FIRESPOT-LAB-INTERNET-OK' in response:break
+        time.sleep(1)
+    check('FIRESPOT-LAB-INTERNET-OK' in response,'MAC cookie reconecta o acesso pago')
     execute('exec','-T','client-b','python3','/opt/lab/smoke.py','courtesy')
     check(state()['active_accounting']>=2,'Duas instalações têm accounting ativo')
+    execute('preset','free_sponsored')
+    execute('exec','-T','chr','python3','/opt/lab/router.py','/ip hotspot active remove [find server="LAB-B"]')
+    execute('exec','-T','client-b','python3','/opt/lab/new_device.py')
+    execute('exec','-T','client-b','python3','/opt/lab/smoke.py','sponsored')
+    execute('preset','hybrid')
 except (RuntimeError,ValueError) as error:
     print('::error::Lab validation: '+str(error),flush=True); raise SystemExit(2)

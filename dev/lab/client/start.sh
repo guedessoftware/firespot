@@ -18,4 +18,5 @@ sleep 1
 su-exec client fluxbox &
 su-exec client x11vnc -display :99 -localhost -rfbport 5900 -passwdfile /home/client/vnc-password -forever -shared -quiet &
 su-exec client firefox --no-remote "http://10.203.40.10/" > /home/client/firefox.log 2>&1 &
+printf '%s\n' "$!" > /tmp/gui-firefox.pid
 exec su-exec client websockify --web=/usr/share/novnc 0.0.0.0:6080 127.0.0.1:5900

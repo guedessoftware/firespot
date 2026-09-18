@@ -84,13 +84,13 @@ O ambiente local básico também inicia FreeRADIUS. Para testes com CHR/clientes
 
 O cliente com cortesia já ativa não é ideal para iniciar a compra: os fluxos de retorno têm prioridade. Para repetir os testes desde o início, encerre e remova **somente os volumes do laboratório** conforme abaixo.
 
-O teste automatizado usa um laboratório recém-criado e realiza DHCP/contexto nas duas VLANs, Firefox, Pix provisório, webhook autenticado, CoA-ACK, preservação da sessão e do baseline pago, aprovação duplicada, cortesia e accounting:
+O teste automatizado usa um laboratório recém-criado e realiza DHCP/contexto nas duas VLANs, Firefox, Pix provisório, webhook autenticado, CoA-ACK, preservação da sessão e do baseline pago, aprovação duplicada, reconexão por MAC cookie, cortesia direta, patrocinado e accounting. Para o patrocinado, o teste troca o MAC do cliente B para representar outro dispositivo sem reutilizar sua cortesia:
 
 ```bash
 python3 dev/lab/validate.py
 ```
 
-Não o execute enquanto estiver usando as mesmas sessões para testes manuais. O fluxo de cartão não é simulado; testes com o provedor real e Android físico precisam de homologação separada.
+Não o execute enquanto estiver usando as mesmas sessões para testes manuais: o teste fecha o Firefox da tela para liberar memória e validar a aprovação com todos os navegadores fechados. Depois, use `bash dev/lab.sh restart client-a client-b` para reabrir as telas, ou recrie os volumes do laboratório para repetir desde o início. O fluxo de cartão não é simulado; testes com o provedor real e Android físico precisam de homologação separada.
 
 ## Operação e diagnóstico
 

@@ -1,9 +1,9 @@
 name: Laboratório Hotspot
 on:
   push:
-    paths: ["dev/**", "compose*.yaml", ".github/workflows/hotspot-lab.yml"]
+    paths: ["dev/**", "compose*.yaml", "app/**", "portal/**", "portal-v3/**", "migrations/**", "assets/nas/**", "tests/**", ".github/workflows/hotspot-lab.yml"]
   pull_request:
-    paths: ["dev/**", "compose*.yaml", ".github/workflows/hotspot-lab.yml"]
+    paths: ["dev/**", "compose*.yaml", "app/**", "portal/**", "portal-v3/**", "migrations/**", "assets/nas/**", "tests/**", ".github/workflows/hotspot-lab.yml"]
 permissions:
   contents: read
 jobs:
@@ -38,7 +38,7 @@ jobs:
                       if len(value)>=8:text=text.replace(value,'[redacted]')
           print(text)
           for line in text.splitlines():
-              if any(word in line for word in ['Error','failed','Fatal','Uncaught','rejected','RADIUS configuration']):print('::error::'+line.replace('%','%25').replace('\r','%0D'))
+              if any(word in line for word in ['Error','failed','Fatal','Uncaught','rejected','RADIUS configuration','CHR console diagnostic','Login:']):print('::error::'+line.replace('%','%25').replace('\r','%0D'))
           PY
       - name: Encerrar laboratório
         if: always()
