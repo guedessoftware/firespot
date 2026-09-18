@@ -120,20 +120,22 @@ def console_login():
     patterns=[r'(?i)login\s*:',r'(?i)password\s*[:>]',r'(?i)new password\s*[:>]',r'(?i)(?:repeat|retype)(?: new)? password\s*[:>]',r'\[Y/n\]:',r'\] >',pexpect.EOF,pexpect.TIMEOUT]
     fresh=NEW_DISK
     login_count=0
-    new_password_sent=repeat_password_sent=False
+    login_sent=password_sent=skip_sent=False
     deadline=time.monotonic()+360
     while time.monotonic()<deadline:
         # New-password prompts precede the generic password prompt.
         index=child.expect([patterns[0],patterns[2],patterns[3],patterns[1],patterns[4],patterns[5],patterns[6],patterns[7],r'-- press Enter \(q to abort\)'],timeout=3)
-        if index==0: child.sendline('admin+ct'); login_count+=1
-        elif index==1 and not new_password_sent:
-            child.sendline(PASSWORD); new_password_sent=True
-        elif index==2 and not repeat_password_sent:
-            child.sendline(PASSWORD); repeat_password_sent=True
-        elif index==3: child.sendline('' if fresh or (login_count==2 and not (DATA/'configured').exists()) else PASSWORD)
+        if index==0 and not login_sent:
+            child.sendline('admin+ct'); login_sent=True; login_count+=1
+        elif index in [1,2] and not skip_sent:
+            # The wizard explicitly supports Ctrl-C. Set the generated password
+            # with an acknowledged command before enabling any service network.
+            child.send('\x03'); skip_sent=True
+        elif index==3 and not password_sent:
+            child.sendline('' if fresh else PASSWORD); password_sent=True
         elif index==4: child.sendline('n')
         elif index==5: return child,serial
-        elif index==7: child.sendline('')  # Console activation may become available only after boot.
+        elif index==7 and not login_sent: child.sendline('')
         elif index==8: child.send('q')
         elif index==6: raise RuntimeError('Console do CHR desconectado.')
     raise RuntimeError('Login do console do CHR não concluiu.')
@@ -143,7 +145,7 @@ def console_command(child,text,timeout=60):
     # marker confirms execution before accepting the next prompt.
     marker='FIRESPOT-LAB-SYNC-'+uuid.uuid4().hex
     child.sendline(text+'; :put "'+marker+'"')
-    child.expect(r'(?m)^'+marker+r'\r?$',timeout=timeout)
+    child.expect(r'(?m)^'+marker+r'[\r \t]*$',timeout=timeout)
     output=child.before
     child.expect(r'\] >',timeout=timeout)
     return output
@@ -175,6 +177,7 @@ try:
         if guest.poll() is not None: raise RuntimeError('QEMU encerrou antes da inicialização.')
         time.sleep(.5)
     child,serial=console_login()
+    console_command(child,f'/user set [find name="admin"] password="{PASSWORD}"')
     if not (DATA/'configured').exists():
         server=HTTPServer(('127.0.0.1',8765),Handler)
         threading.Thread(target=server.serve_forever,daemon=True).start()
