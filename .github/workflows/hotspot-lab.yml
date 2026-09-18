@@ -1,0 +1,40 @@
+name: Laboratório Hotspot
+on:
+  push:
+    paths: ["dev/**", "compose*.yaml", ".github/workflows/hotspot-lab.yml"]
+  pull_request:
+    paths: ["dev/**", "compose*.yaml", ".github/workflows/hotspot-lab.yml"]
+permissions:
+  contents: read
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar laboratório fictício
+        run: python3 dev/lab/setup.py
+      - name: Subir RADIUS, CHR e Firefox nas VLANs
+        run: bash dev/lab.sh start
+      - name: Testar portal, Pix simulado, CoA e cortesia
+        run: python3 dev/lab/validate.py
+      - name: Diagnóstico sem segredos
+        if: failure()
+        run: |
+          bash dev/lab.sh logs --tail 35 > "$RUNNER_TEMP/lab.log" 2>&1 || true
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          text=Path(os.environ['RUNNER_TEMP']+'/lab.log').read_text()
+          for path in Path('dev/.local').iterdir():
+              if path.is_file():
+                  for line in path.read_text().splitlines():
+                      value=line.split('=',1)[-1]
+                      if len(value)>=8:text=text.replace(value,'[redacted]')
+          print(text)
+          for line in text.splitlines():
+              if any(word in line for word in ['Error','failed','Fatal','Uncaught','rejected','RADIUS configuration']):print('::error::'+line.replace('%','%25').replace('\r','%0D'))
+          PY
+      - name: Encerrar laboratório
+        if: always()
+        run: bash dev/lab.sh down -v

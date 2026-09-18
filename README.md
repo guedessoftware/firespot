@@ -4,7 +4,7 @@
 
 O FireSpot reúne portal cativo, controle de acesso, estabelecimentos, equipamentos e operação financeira em uma aplicação PHP. Permite oferecer internet paga, cortesia, acesso patrocinado e benefícios para assinantes, com políticas próprias para cada ponto de acesso.
 
-[Recursos](#recursos) · [Desenvolvimento local](docs/LOCAL_DEVELOPMENT.md) · [Instalação](#instalação-completa) · [FreeRADIUS](#configuração-do-freeradius) · [MikroTik](#mikrotik-e-primeiro-hotspot) · [Publicação](docs/DEPLOYMENT.md) · [Problemas comuns](#problemas-comuns)
+[Recursos](#recursos) · [Desenvolvimento local](docs/LOCAL_DEVELOPMENT.md) · [Laboratório Hotspot](docs/HOTSPOT_LAB.md) · [Instalação](#instalação-completa) · [FreeRADIUS](#configuração-do-freeradius) · [MikroTik](#mikrotik-e-primeiro-hotspot) · [Publicação](docs/DEPLOYMENT.md) · [Problemas comuns](#problemas-comuns)
 
 ## Recursos
 
@@ -74,6 +74,14 @@ bash dev/local.sh exec -T web php dev/bootstrap.php
 Acesse **http://localhost:8090/dashboard/login.php**, usuário **`admin_local`**. Consulte a senha gerada com `cat dev/.local/admin-password`. A porta é configurável; 8080 não é usada. Banco e uploads são locais, e não há dados de produção nem integrações externas ativadas.
 
 Veja o [guia local](docs/LOCAL_DEVELOPMENT.md) para configuração, troca de porta, testes e rotina Git. Para enviar mudanças ao servidor, siga o [guia de publicação](docs/DEPLOYMENT.md), com conferência dos arquivos, backup e rollback. Push no GitHub não faz deploy automático.
+
+O ambiente local já inicia **FreeRADIUS com SQL, PAP/CHAP, contador e accounting**. Para testar o acesso no navegador atrás do MikroTik, o [laboratório completo](docs/HOTSPOT_LAB.md) inclui CHR oficial, dois clientes Alpine com Firefox, VLANs 10/20 e Pix simulado com webhook e CoA real:
+
+```bash
+bash dev/lab.sh start
+```
+
+Abra as telas dos clientes em **http://localhost:6081/vnc.html** e **http://localhost:6082/vnc.html**. O Pix do laboratório é fictício e não cobra valores; suas credenciais são geradas localmente e ignoradas pelo Git.
 
 ## Instalação completa
 

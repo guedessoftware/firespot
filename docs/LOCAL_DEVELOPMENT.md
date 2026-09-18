@@ -126,6 +126,8 @@ bash dev/local.sh exec -T web php dev/radius/smoke.php
 
 O teste troca pacotes UDP reais, valida PAP e CHAP, rejeita senha/MAC incorretos, verifica tempo restante e confirma Start/Interim/Stop no SQL. Não aponte o RADIUS ou o NAS de produção para este banco local.
 
+Para testar o navegador atrás de um MikroTik, use o [laboratório completo com CHR, duas VLANs e clientes Linux com Firefox](HOTSPOT_LAB.md). O Pix do laboratório é simulado e não gera cobranças.
+
 Antes de analisar ou alterar o fluxo de conexão, leia as duas regras permanentes:
 
 - [Segurança da conexão](MIKROTIK_HOTSPOT_CONNECTION_SAFETY.md).

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 require_once __DIR__ . '/../../app/db.php';
+require_once __DIR__ . '/../../app/env.php';
 if (env('APP_ENV') !== 'local' || env('DB_DATABASE') !== 'firespot_local') exit(64);
 set_exception_handler(static function(Throwable $error): void {
     $message=$error->getMessage();
