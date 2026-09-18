@@ -12,6 +12,15 @@ services:
     secrets:
       - chr_radius_secret
       - chr_admin_password
+    networks:
+      local:
+        ipv4_address: 10.203.30.7
+  proxy:
+    networks:
+      browser:
+        ipv4_address: 10.203.40.3
+      local:
+        ipv4_address: 10.203.30.6
   radius:
     networks:
       local:
@@ -78,6 +87,7 @@ services:
     mem_limit: 1g
     networks:
       browser:
+        ipv4_address: 10.203.40.11
       trunk:
         ipv4_address: 10.203.254.10
     depends_on:
@@ -97,6 +107,7 @@ services:
     ports: !override ["127.0.0.1:6082:6080"]
     networks: !override
       browser:
+        ipv4_address: 10.203.40.12
       trunk:
         ipv4_address: 10.203.254.20
 

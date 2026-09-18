@@ -59,6 +59,9 @@ def config():
         '/ip address add address=10.203.30.2/24 interface=ether2 comment=FireSpot-LAB',
         '/ip dns set allow-remote-requests=yes servers=10.0.2.3',
         '/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade comment=FireSpot-LAB',
+        '/ip firewall address-list add list=lab-clients address=10.203.10.0/24',
+        '/ip firewall address-list add list=lab-clients address=10.203.20.0/24',
+        '/ip firewall nat add chain=srcnat out-interface=ether2 src-address-list=lab-clients action=masquerade comment=FireSpot-LAB-portal-return',
         f'/radius add address=10.203.30.4 src-address=10.203.30.2 secret="{SECRET}" service=hotspot authentication-port=1812 accounting-port=1813 timeout=3s comment="FireSpot Base"',
         '/radius incoming set accept=yes port=3799',
         '/ip service set [find name=ssh] address=10.203.30.0/24',
@@ -107,16 +110,17 @@ class Handler(BaseHTTPRequestHandler):
 def console_login():
     serial=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
     serial.connect(str(DATA/'serial.sock'))
-    child=fdspawn(serial,encoding='utf-8',codec_errors='replace',timeout=360)
+    child=fdspawn(os.dup(serial.fileno()),encoding='utf-8',codec_errors='replace',timeout=360)
     child.sendline('')
     patterns=[r'(?i)login:',r'(?i)password:',r'(?i)new password:',r'(?i)repeat new password:',r'(?i)software license.*\[Y/n\]:',r'\] >',pexpect.EOF,pexpect.TIMEOUT]
-    fresh=not (DATA/'configured').exists()
+    fresh=NEW_DISK
+    login_count=0
     for _ in range(20):
         # New-password prompts precede the generic password prompt.
         index=child.expect([patterns[0],patterns[2],patterns[3],patterns[1],patterns[4],patterns[5],patterns[6],patterns[7]])
-        if index==0: child.sendline('admin+ct')
+        if index==0: child.sendline('admin+ct'); login_count+=1
         elif index in [1,2]: child.sendline(PASSWORD)
-        elif index==3: child.sendline('' if fresh else PASSWORD)
+        elif index==3: child.sendline('' if fresh or (login_count==2 and not (DATA/'configured').exists()) else PASSWORD)
         elif index==4: child.sendline('n')
         elif index==5: return child,serial
         else: raise RuntimeError('Console do CHR indisponível; verifique /data/qemu.log privado.')
@@ -125,7 +129,8 @@ def console_login():
 bridge('10.203.30.2','br-service','tap-service','10.203.30.254/24')
 bridge('10.203.254.2','br-trunk','tap-trunk')
 disk=DATA/'router.qcow2'
-if not disk.exists():
+NEW_DISK=not disk.exists()
+if NEW_DISK:
     run('qemu-img','convert','-f','raw','-O','qcow2','/opt/chr.img',str(disk)); disk.chmod(0o600)
     run('qemu-img','resize',str(disk),'256M')
 args=['qemu-system-x86_64','-accel','tcg','-cpu','max','-m','512','-smp','2','-display','none','-monitor','none',
@@ -157,7 +162,10 @@ try:
         child.expect(r'\] >',timeout=60)
         child.sendline('/import file-name=bootstrap.rsc')
         child.expect(r'\] >',timeout=120)
-        if 'FIRESPOT-LAB-CONFIGURED' not in child.before: raise RuntimeError('Importação do laboratório rejeitada. Console privado não é publicado.')
+        if 'FIRESPOT-LAB-CONFIGURED' not in child.before:
+            error=child.before.replace(PASSWORD,'[redacted]').replace(SECRET,'[redacted]')
+            lines=[line for line in error.splitlines() if any(word in line.lower() for word in ['failure','expected','syntax','error','not allowed'])]
+            raise RuntimeError('Importação rejeitada: '+' '.join(lines)[-1500:])
         child.sendline('/file remove [find name=bootstrap.rsc]'); child.expect(r'\] >')
         server.shutdown(); (DATA/'configured').write_text('1\n')
     child.close(); serial.close()
