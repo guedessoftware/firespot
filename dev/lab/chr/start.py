@@ -64,7 +64,7 @@ def config():
         f'/radius add address=10.203.30.3 src-address=10.203.30.2 secret="{SECRET}" service=hotspot authentication-port=1812 accounting-port=1813 timeout=3s comment="FireSpot Base"',
         '/radius incoming set accept=yes port=3799',
         '/ip service set [find name=ssh] address=10.203.30.0/24',
-        '/ip service disable [find name!=ssh]',
+        *[f'/ip service set {name} disabled=yes' for name in ['telnet','ftp','www','www-ssl','api','api-ssl','winbox','reverse-proxy']],
         '/ip hotspot user profile set [find name=default] add-mac-cookie=yes mac-cookie-timeout=20m shared-users=1',
         ':if ([:len [/file find name="hotspot"]]=0) do={/file add name=hotspot type=directory}',
     ]
@@ -142,7 +142,11 @@ def console_command(child,text,timeout=60):
     # marker confirms execution before accepting the next prompt.
     marker='FIRESPOT-LAB-SYNC-'+uuid.uuid4().hex
     child.sendline(text+'; :put "'+marker+'"')
-    child.expect(r'(?m)^[\r \t]*'+marker+r'[\r \t]*$',timeout=timeout)
+    index=child.expect([r'(?m)^[\r \t]*'+marker+r'[\r \t]*$',r'(?i)(?:script error:|failure:|syntax error|expected end of command)[^\r\n]*'],timeout=timeout)
+    if index==1:
+        detail=child.after
+        child.expect(r'\] >',timeout=15)
+        raise RuntimeError('Comando do CHR rejeitado: '+redact_console(detail+child.before)[-1500:])
     output=child.before
     child.expect(r'\] >',timeout=timeout)
     return output
