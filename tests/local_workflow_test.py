@@ -25,6 +25,34 @@ spec.loader.exec_module(local_setup)
 
 
 class SetupTest(unittest.TestCase):
+    def test_closed_http_connection_does_not_block_startup(self):
+        with socket.socket() as server, socket.socket() as client:
+            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            server.bind(('127.0.0.1', 0))
+            port = server.getsockname()[1]
+            server.listen(1)
+            client.settimeout(2)
+            client.connect(('127.0.0.1', port))
+            connection, _ = server.accept()
+            connection.close()
+            self.assertEqual(client.recv(1), b'')
+            client.close()
+            server.close()
+            with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+                directory = Path(temporary) / '.local'
+                local_setup.setup(directory, port)
+                self.assertTrue((directory / 'compose.env').is_file())
+
+    def test_active_listener_still_blocks_port_reuse(self):
+        for address in ['127.0.0.1', '0.0.0.0']:
+            with self.subTest(address=address), socket.socket() as server:
+                server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                server.bind((address, 0))
+                port = server.getsockname()[1]
+                server.listen(1)
+                with self.assertRaises(OSError):
+                    local_setup.check_port(port)
+
     def test_private_independent_keys_and_idempotency(self):
         with tempfile.TemporaryDirectory() as temporary, socket.socket() as listener:
             directory = Path(temporary) / '.local'

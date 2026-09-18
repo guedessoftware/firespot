@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Read-only host checks before building or starting the lab."""
+import importlib.util
 import ipaddress
 import json
 import os
 from pathlib import Path
 import re
-import socket
 import subprocess
 
 ROOT=Path(__file__).resolve().parents[2]
+setup_spec=importlib.util.spec_from_file_location('firespot_local_setup',ROOT/'dev/setup.py')
+local_setup=importlib.util.module_from_spec(setup_spec)
+setup_spec.loader.exec_module(local_setup)
 try:
     info=subprocess.run(['docker','info','--format','{{json .SecurityOptions}}'],capture_output=True,text=True)
     if info.returncode:raise ValueError('Docker indisponível ou sem permissão. Instale/inicie o Engine e confirme docker info.')
@@ -22,9 +25,8 @@ try:
     port=int((ROOT/'dev/.local/compose.env').read_text().strip().split('=',1)[1])
     for number,service in [(port,'proxy'),(6081,'client-a'),(6082,'client-b')]:
         if service in running:continue
-        with socket.socket() as probe:
-            try:probe.bind(('127.0.0.1',number))
-            except OSError:raise ValueError(f'Porta {number} ocupada. Pare o serviço que a usa; para o ambiente básico: bash dev/local.sh down.') from None
+        try:local_setup.check_port(number)
+        except OSError:raise ValueError(f'Porta {number} ocupada. Pare o serviço que a usa; para o ambiente básico: bash dev/local.sh down.') from None
     # Ignore bridges belonging to an existing lab; never alter host interfaces/routes.
     lab_devices=set()
     ids=subprocess.check_output(['docker','network','ls','--filter','label=com.docker.compose.project=firespot-lab','--quiet'],text=True).splitlines()

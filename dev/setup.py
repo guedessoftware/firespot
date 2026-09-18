@@ -9,6 +9,15 @@ import secrets
 import socket
 
 
+def check_port(port):
+    # A stopped HTTP server may leave TIME_WAIT connections. Reuse those
+    # addresses while still rejecting a port with an active listener.
+    with socket.socket() as probe:
+        probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        probe.bind(('127.0.0.1', port))
+        probe.listen(1)
+
+
 def radius_settings(directory):
     names = ['radius-db-password', 'radius-probe-secret']
     present = [(directory / name).exists() for name in names]
@@ -55,11 +64,10 @@ def setup(directory, port=None):
     port = port if port is not None else 8090
     if not 1024 <= port <= 65535:
         raise ValueError('Use uma porta entre 1024 e 65535.')
-    with socket.socket() as probe:
-        try:
-            probe.bind(('127.0.0.1', port))
-        except OSError:
-            raise ValueError(f'Porta {port} já está em uso. Escolha outra com --port NUMERO.') from None
+    try:
+        check_port(port)
+    except OSError:
+        raise ValueError(f'Porta {port} já está em uso. Escolha outra com --port NUMERO.') from None
     directory.mkdir(mode=0o700, parents=True)
     password = secrets.token_hex(32)
     admin_password = secrets.token_urlsafe(24)
