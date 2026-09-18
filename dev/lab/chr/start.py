@@ -1,11 +1,9 @@
 """Run official CHR in QEMU and attach two TAPs to private Docker bridges."""
-import functools
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import json
 import os
 from pathlib import Path
 import re
-import shutil
 import signal
 import socket
 import subprocess
@@ -119,14 +117,13 @@ def console_login():
     child.sendline('')
     patterns=[r'(?i)login\s*:',r'(?i)password\s*[:>]',r'(?i)new password\s*[:>]',r'(?i)(?:repeat|retype)(?: new)? password\s*[:>]',r'\[Y/n\]:',r'\] >',pexpect.EOF,pexpect.TIMEOUT]
     fresh=NEW_DISK
-    login_count=0
     login_sent=password_sent=skip_sent=False
     deadline=time.monotonic()+360
     while time.monotonic()<deadline:
         # New-password prompts precede the generic password prompt.
         index=child.expect([patterns[0],patterns[2],patterns[3],patterns[1],patterns[4],patterns[5],patterns[6],patterns[7],r'-- press Enter \(q to abort\)'],timeout=3)
         if index==0 and not login_sent:
-            child.sendline('admin+ct'); login_sent=True; login_count+=1
+            child.sendline('admin+ct'); login_sent=True
         elif index in [1,2] and not skip_sent:
             # The wizard explicitly supports Ctrl-C. Set the generated password
             # with an acknowledged command before enabling any service network.
@@ -145,10 +142,17 @@ def console_command(child,text,timeout=60):
     # marker confirms execution before accepting the next prompt.
     marker='FIRESPOT-LAB-SYNC-'+uuid.uuid4().hex
     child.sendline(text+'; :put "'+marker+'"')
-    child.expect(r'(?m)^'+marker+r'[\r \t]*$',timeout=timeout)
+    child.expect(r'(?m)^[\r \t]*'+marker+r'[\r \t]*$',timeout=timeout)
     output=child.before
     child.expect(r'\] >',timeout=timeout)
     return output
+
+def redact_console(text):
+    text=re.sub(r'\x1b\[[0-9;?]*[A-Za-z]|\x1b.', '', text)
+    text=text.replace(PASSWORD,'[redacted]').replace(SECRET,'[redacted]')
+    # Serial terminals wrap quoted credentials across lines. Mask hex fragments
+    # too, rather than relying on a contiguous full-secret match.
+    return re.sub(r'[a-f0-9]{8,}','[redacted]',text)
 
 bridge('10.203.30.2','br-service','tap-service','10.203.30.254/24')
 bridge('10.203.254.2','br-trunk','tap-trunk')
@@ -186,7 +190,7 @@ try:
         console_command(child,'/tool fetch url="http://10.0.2.2:8765/bootstrap.rsc" dst-path=bootstrap.rsc')
         output=console_command(child,'/import file-name=bootstrap.rsc',timeout=180)
         if 'FIRESPOT-LAB-CONFIGURED' not in output:
-            error=output.replace(PASSWORD,'[redacted]').replace(SECRET,'[redacted]')
+            error=redact_console(output)
             lines=[line for line in error.splitlines() if any(word in line.lower() for word in ['failure','expected','syntax','error','not allowed'])]
             raise RuntimeError('Importação rejeitada: '+' '.join(lines)[-1500:])
         console_command(child,'/file remove [find name=bootstrap.rsc]')
@@ -203,11 +207,10 @@ try:
     guest.wait(); READY.unlink(missing_ok=True); raise SystemExit(guest.returncode)
 except Exception as error:
     READY.unlink(missing_ok=True); guest.terminate(); guest.wait(timeout=15)
-    # Do not print serial output, which contains passwords and shared secrets.
-    print('CHR initialization failed: '+type(error).__name__+': '+str(error),flush=True)
+    # The raw serial transcript stays private; expose only a masked diagnostic.
+    print('CHR initialization failed: '+type(error).__name__+': '+redact_console(str(error)),flush=True)
     console=DATA/'console.log'
     if console.exists():
-        tail=console.read_text(errors='replace')[-1800:].replace(PASSWORD,'[redacted]').replace(SECRET,'[redacted]')
-        tail=re.sub(r'\x1b\[[0-9;?]*[A-Za-z]','',tail)
+        tail=redact_console(console.read_text(errors='replace')[-1800:])
         print('CHR console diagnostic: '+tail.replace('\r',' ').replace('\n',' | '),flush=True)
     raise SystemExit(1)
