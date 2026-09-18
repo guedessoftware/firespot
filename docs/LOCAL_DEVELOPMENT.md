@@ -2,7 +2,7 @@
 
 Você pode editar o FireSpot na sua máquina e usar o GitHub para compartilhar o código. O servidor de produção fica responsável pela aplicação em uso; o chat e o editor podem trabalhar sobre o clone local.
 
-O ambiente usa Ubuntu 22.04, Apache/PHP 8.1 e MariaDB 10.6 em contêineres. O código fica na pasta do clone e é montado para leitura no Apache; mudanças em PHP, CSS e JavaScript aparecem sem reconstruir a imagem. Banco e uploads ficam em volumes próprios.
+O ambiente usa Ubuntu 22.04, Apache/PHP 8.1 e MariaDB 10.6 em contêineres. Um proxy Nginx recebe o acesso do navegador. O código fica na pasta do clone e é montado para leitura no Apache; mudanças em PHP, CSS e JavaScript aparecem sem reconstruir a imagem. Banco e uploads ficam em volumes próprios.
 
 ## 1. Pré-requisitos
 
@@ -110,7 +110,7 @@ As credenciais são geradas em `dev/.local`, com diretório `700` e arquivos `60
 
 Não copie `.env`, `master.key`, dumps, mídias de clientes nem credenciais reais da produção para o clone. Não use `git add -f` para arquivos privados. O administrador local e o banco usam senhas novas, independentes da produção.
 
-Por padrão, a rede Compose é interna, o banco não publica porta e não são iniciados jobs de infraestrutura, pagamentos ou integração. Chamadas do PHP a APIs externas e equipamentos exigem liberar a rede explicitamente. Navegadores podem acessar recursos externos por conta própria; o isolamento dos contêineres não controla a rede do navegador.
+Por padrão, PHP e banco usam exclusivamente uma rede interna; somente o proxy tem a rede necessária para publicar a porta do navegador. Essa separação segue o [modelo de redes do Docker](https://docs.docker.com/engine/network/). O banco não publica porta e não são iniciados jobs de infraestrutura, pagamentos ou integração. Chamadas do PHP a APIs externas e equipamentos exigem liberar a rede explicitamente. Navegadores podem acessar recursos externos por conta própria; o isolamento dos contêineres não controla a rede do navegador.
 
 Para desenvolver integrações, use somente contas de teste e equipamentos de laboratório em uma configuração separada, revisada por você. O ambiente local não oferece callbacks públicos para webhooks. Não use tokens reais para tentar reproduzir pagamentos ou operações MikroTik.
 

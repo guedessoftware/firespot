@@ -26,8 +26,6 @@ services:
   web:
     build:
       context: ./dev
-    ports:
-      - "127.0.0.1:${FIRESPOT_LOCAL_PORT:-8090}:80"
     environment:
       FIRESPOT_ENV_PATH: /etc/firespot/firespot.env
       FIRESPOT_MASTER_KEY_PATH: /etc/firespot/master.key
@@ -51,7 +49,27 @@ services:
       retries: 20
       start_period: 10s
 
+  proxy:
+    image: nginx:stable-alpine
+    ports:
+      - "127.0.0.1:${FIRESPOT_LOCAL_PORT:-8090}:80"
+    volumes:
+      - ./dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - browser
+      - local
+    depends_on:
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, --quiet, --spider, http://127.0.0.1/dashboard/login.php]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
 networks:
+  browser:
   local:
     internal: true
 
