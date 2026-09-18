@@ -109,6 +109,8 @@ bash dev/lab.sh down -v
 bash dev/lab.sh start
 ```
 
+Se você já criou o laboratório e uma atualização mudou o configurador ou os arquivos de portal do CHR, use esse mesmo procedimento para aplicar a nova configuração. Um simples `git pull` seguido de `start` preserva a configuração existente no disco do RouterOS. A recriação mantém os arquivos de segredos em `dev/.local/`, mas apaga os dados fictícios dos volumes.
+
 Não publique o disco, console serial, credenciais ou logs privados do CHR. Se você alterar manualmente o RouterOS e quebrar o laboratório, recrie seus volumes em vez de apontar o configurador para um equipamento físico. Os botões que dependem dos helpers de produção em `/opt/firespot-ops` não são instalados por este laboratório; a configuração inicial do CHR é feita pelo configurador de teste.
 
 A licença gratuita do [CHR limita a transmissão a 1 Mbps por interface](https://manual.mikrotik.com/docs/getting-started/routeros-licensing/chr/chr-licensing/), suficiente para estes testes. O laboratório verifica rede cabeada/VLAN, portal e RADIUS; não emula rádio Wi-Fi ou o comportamento do portal cativo do Android.

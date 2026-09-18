@@ -83,7 +83,7 @@ try:
         wait(lambda: '/sucesso.php?' in wd('GET','/url'),'Pix simulado criado')
         assert_ok('SEM VALOR' in script('return document.body.textContent;'),'Pix de teste sem valor')
         click('#retry-window-button')
-        wait(lambda: 'Internet liberada' in script('return document.body.innerText;') or 'Internet temporária liberada' in script('return document.body.innerText;'),'Autenticação provisória',seconds=60)
+        wait(lambda: b'FIRESPOT-LAB-INTERNET-OK' in subprocess.run(['curl','--silent','--max-time','3',WAN],capture_output=True).stdout,'Autenticação provisória',seconds=60)
         assert_ok(True,'Firefox autenticou a sessão provisória por CHAP')
     elif MODE in ['courtesy','sponsored']:
         wd('POST','/url',{'url':'http://10.203.30.3/portal-v3/courtesy.php?hotspot='+CODE})
